@@ -21,12 +21,6 @@ final storageProvider = Provider<FirebaseStorage>(
   (ref) => FirebaseStorage.instance,
 );
 
-/// 로그인 / 비로그인(익명) 
-final currentUidProvider = Provider<String>((ref) {
-  return ref.watch(authProvider).currentUser?.uid ?? 'anonymous';
-  // 로그인 상태에서는 Uid노출, 미로그인 시 익명 로그인 
-});
-
 /// 레포지토리 (shorts 컬렉션을 다루도록 구현됨)
 final videosRepoProvider = Provider<VideosRepository>((ref) {  
   return VideosRepository(ref.read(firestoreProvider), ref.read(storageProvider));
@@ -60,11 +54,13 @@ class UploadShortParams {
   final String title;      // STitle
   final String country;    // SCountry
   final String? docId;     // 특정 문서를 갱신하려면 지정(없으면 새 문서 생성)
+  final String? email;
   const UploadShortParams({
     required this.file,
     required this.title,
     required this.country,
     this.docId,
+    required this.email,
   });
 }
 
@@ -77,7 +73,7 @@ final uploadShortProvider =
   if (auth.currentUser == null) {
     await auth.signInAnonymously(); // 테스트용 익명 로그인
   }
-  final uid = ref.read(currentUidProvider);
+  final uid = FirebaseAuth.instance.currentUser!.uid;
 
   try {
     final repo = ref.read(videosRepoProvider);
@@ -89,11 +85,12 @@ final uploadShortProvider =
       ownerUid: uid,
       title: p.title,
       country: p.country,
+      userEmail: p.email, 
       docId: p.docId, // null이면 새 문서 생성
       onProgress: (pct) =>
           ref.read(uploadProgressProvider.notifier).state = pct,
     );
-  } finally {
+  } finally { 
     ref.read(uploadProgressProvider.notifier).state = null;
   }
 });
@@ -111,6 +108,7 @@ final uploadVideoProvider = FutureProvider.family<void, File>((ref, file) async 
             file: file,
             title: 'Untitled',
             country: 'Unknown',
+            email:  FirebaseAuth.instance.currentUser!.email,
           ),
         ).future,
       )

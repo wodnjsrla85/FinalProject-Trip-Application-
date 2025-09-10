@@ -70,7 +70,8 @@ class VideosRepository {
     String? userEmail,                      // UEmail 저장
     String? docId,                          // 지정 시 해당 문서 업데이트
     String title = '',                      // STitle
-    String country = '',                    // SCountry
+    String country = '', 
+    String? email,
     void Function(double pct)? onProgress,
   }) async {
     // 1) Storage 업로드
@@ -98,6 +99,7 @@ class VideosRepository {
     final docRef = (docId != null && docId.isNotEmpty) ? col.doc(docId) : col.doc();
 
     await docRef.set({
+      'UEmail': email,
       'SVideo'      : url,
       'STitle'      : title,
       'SCountry'    : country,
