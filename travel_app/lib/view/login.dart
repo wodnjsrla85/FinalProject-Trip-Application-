@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:travel_app/view/VideosPage.dart';
 import 'package:travel_app/view/join.dart';
 import 'package:travel_app/view/main.dart';
+import 'package:travel_app/view/shorts_reels_page.dart';
 
 class Login extends ConsumerWidget {
   const Login({super.key});
@@ -24,7 +26,7 @@ class Login extends ConsumerWidget {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Main(),)
+          MaterialPageRoute(builder: (context) => VideosPage(),)
         );
 
         
