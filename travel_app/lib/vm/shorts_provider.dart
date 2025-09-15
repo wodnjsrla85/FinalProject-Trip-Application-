@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:travel_app/Model/ShortMeta.dart'; // ShortMeta & VideosRepository(업데이트 버전)
@@ -113,4 +112,74 @@ final uploadVideoProvider = FutureProvider.family<void, File>((ref, file) async 
         ).future,
       )
       .catchError((_) {}); // 에러 처리는 호출부에서 SnackBar 등으로
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 수정 (Update)
+// ─────────────────────────────────────────────────────────────────────────────
+final updateShortProvider = FutureProvider.family<void, Map<String, dynamic>>((ref, data) async {
+  // data 안에는 {"docId": "...", "title": "...", "country": "..."} 이런 값 들어옴
+  final docId = data['docId'] as String?;
+  if (docId == null || docId.isEmpty) {
+    throw Exception("docId가 필요합니다.");
+  }
+
+  final db = ref.read(firestoreProvider);
+  await db.collection('shorts').doc(docId).update({
+    if (data['title'] != null) 'STitle': data['title'],
+    if (data['country'] != null) 'SCountry': data['country'],
+    'SDate': FieldValue.serverTimestamp(), // 수정 시간 갱신
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 삭제 (Delete) - Storage + Firestore
+// ─────────────────────────────────────────────────────────────────────────────
+final deleteShortProvider =
+    FutureProvider.family<void, String>((ref, docId) async {
+  if (docId.isEmpty) throw Exception("docId가 필요합니다.");
+
+  final db = ref.read(firestoreProvider);
+  final storage = ref.read(storageProvider);
+
+  try {
+    // Firestore 문서 가져오기
+    final snap = await db.collection('shorts').doc(docId).get();
+    if (!snap.exists) throw Exception("삭제할 문서가 없습니다.");
+
+    final data = snap.data();
+    final sPath = data?['SPath'] as String?;
+    final videoUrl = data?['SVideo'] as String?;
+
+    // Storage 삭제
+    bool storageDeleted = false;
+    
+    if (sPath != null && sPath.isNotEmpty) {
+      try {
+        await storage.ref(sPath).delete();
+        storageDeleted = true;
+        print("Storage 삭제 성공");
+      } catch (e) {
+        print("Storage(SPath) 삭제 실패: $e");
+      }
+    }
+    
+    if (!storageDeleted && videoUrl != null && videoUrl.isNotEmpty) {
+      try {
+        final refStorage = storage.refFromURL(videoUrl);
+        await refStorage.delete();
+        print("Storage 삭제 성공 (URL)");
+      } catch (e) {
+        print("Storage(URL) 삭제 실패: $e");
+      }
+    }
+
+    // Firestore 문서 삭제
+    await db.collection('shorts').doc(docId).delete();
+    print("비디오 삭제 완료");
+    
+  } catch (e) {
+    print("삭제 실패: $e");
+    rethrow;
+  }
 });
