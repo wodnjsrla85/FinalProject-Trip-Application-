@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:travel_app/view/VideosPage.dart';
-import 'package:travel_app/view/join.dart';
-import 'package:travel_app/view/main.dart';
-import 'package:travel_app/view/shorts_reels_page.dart';
+import 'package:travel_app/view/home.dart';
+import 'package:travel_app/view/shorts/VideosPage.dart';
+import 'package:travel_app/view/login/join/join.dart';
+import 'package:travel_app/view/shorts/shorts_reels_page.dart';
 
 class Login extends ConsumerWidget {
   const Login({super.key});
@@ -318,7 +318,7 @@ class Login extends ConsumerWidget {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => VideosPage(),)
+          MaterialPageRoute(builder: (context) => Home(),)
         );
                 
       } on FirebaseAuthException catch (_) {

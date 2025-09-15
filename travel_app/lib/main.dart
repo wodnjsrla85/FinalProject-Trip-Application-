@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:travel_app/view/login.dart';
+import 'package:travel_app/view/home.dart';
+import 'package:travel_app/view/login/join/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(),
-      home: const Login(), // Join 위젯 const 로
+      home: Login(), // Join 위젯 const 로
     );
   }
 }
