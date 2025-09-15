@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart' as cs;
-import '../model/travel_package.dart';
+import '../../model/travel_package.dart';
 
 class PackageDetailPage extends StatefulWidget {
   final TravelPackage package;

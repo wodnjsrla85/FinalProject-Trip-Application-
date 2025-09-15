@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:travel_app/view/package_detail.dart';
+import 'package:travel_app/view/home_booking/package_detail.dart';
 import 'package:travel_app/vm/pacakge_provider.dart';
 import '../vm/home_provider.dart';
 import '../model/travel_package.dart';
