@@ -4,7 +4,7 @@ import '../model/travel_package.dart';
 
 final packageProvider = StreamProvider<List<TravelPackage>>((ref) {
   final collection = FirebaseFirestore.instance
-      .collection("package"); // ⚠️ 실제 컬렉션 이름 확인 필요
+      .collection("package");
 
   return collection.snapshots().map((snapshot) {
     return snapshot.docs.map((doc) {

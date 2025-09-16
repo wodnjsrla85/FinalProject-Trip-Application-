@@ -16,10 +16,10 @@ class _MainTabScreenState extends State<MainTabScreen> {
   int currentIndex = 0;
   
   final List<Widget> pages = [
-    const Home(),           // 기존 홈
-    const ShortsReelsPage(),     // 기존 비디오
-    const MyFavoritePage(),    // 새로 만들기
-    const MyPage(),    // 새로 만들기
+    const Home(),           // 홈
+    const ShortsReelsPage(),     // 쇼츠
+    const MyFavoritePage(),    // 저장
+    const MyPage(),    // 마이페이지
   ];
 
   @override
@@ -36,7 +36,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
           BottomNavigationBarItem(icon: Icon(Icons.video_library), label: '숏츠'),
-          BottomNavigationBarItem(icon: Icon(Icons.airplane_ticket_outlined), label: '내 여행'),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark_border_outlined), label: '저장'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
         ],
       ),

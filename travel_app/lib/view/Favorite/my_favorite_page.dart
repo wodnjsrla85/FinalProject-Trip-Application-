@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyFavoritePage extends StatefulWidget {
+class MyFavoritePage extends ConsumerWidget {
   const MyFavoritePage({super.key});
 
   @override
-  State<MyFavoritePage> createState() => _MyFavoritePageState();
-}
-
-class _MyFavoritePageState extends State<MyFavoritePage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  Widget build(BuildContext contex, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(""),
+      ),
+    );
   }
 }

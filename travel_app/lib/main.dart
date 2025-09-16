@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(),
       home: AuthWrapper(), 
+      debugShowCheckedModeBanner: false,
     );
   }
 }

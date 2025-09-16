@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:carousel_slider/carousel_slider.dart' as cs;
@@ -373,15 +375,16 @@ class PackageDetailPage extends ConsumerWidget {
                     if (result != null) {
                       try {
                         final bookingProvider = BookingProvider();
+                        final c = [passengerCount.toString()];
                         await bookingProvider.createBooking(
                           aid: pkg.id,
                           pricePerSeat: int.parse(pkg.pPrice),
-                          selectedSeats: const [], // 패키지는 좌석 없음
+                          selectedSeats: List<String>.from(c),
                           flightDate: pkg.pStart,
-                          passports:
-                              List<String>.from(result['passports']), // ✅ 여권
-                          payment: result['payment'], // ✅ 결제
-                          what: "패키지"
+                          passports: List<String>.from(result['passports']),
+                          payment: result['payment'],
+                          what: "패키지",
+                          passengerCount: passengerCount, // 인원 수 전달
                         );
 
                         ScaffoldMessenger.of(context).showSnackBar(
