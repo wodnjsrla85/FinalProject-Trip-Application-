@@ -26,7 +26,7 @@ class BookingProvider {
     aid: aid,
     uEmail: user.email ?? "unknown",
     aPrice: totalPrice,
-    bDate: flightDate ?? DateTime.now().toIso8601String(),
+    bDate: DateTime.now().toIso8601String(),
     bSit: selectedSeats,
     bid: docRef.id,
     bState: "결제완료",

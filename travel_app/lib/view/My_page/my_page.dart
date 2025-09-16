@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
+import 'package:travel_app/view/My_page/flights_booking_list.dart';
+import 'package:travel_app/view/login/join/login.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/vm/user_provider.dart';
 
@@ -136,8 +138,10 @@ class MyPage extends ConsumerWidget {
                     _buildMenuTitle('내 활동'),
                     _buildMenuItem(
                       icon: Icons.bookmark_outline,
-                      title: '내 예약',
-                      onTap: () {},
+                      title: '내 항공권예약',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FlightsBookingList(),));
+                      },
                     ),
                     _buildMenuItem(
                       icon: Icons.favorite_outline,
@@ -221,7 +225,8 @@ class MyPage extends ConsumerWidget {
                                   child: const Text('취소'),
                                 ),
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
+                                  onPressed: () { Navigator.pop(context, true); Navigator.push(context, MaterialPageRoute(builder: (context) => Login(),));},
+
                                   child: const Text('로그아웃'),
                                 ),
                               ],

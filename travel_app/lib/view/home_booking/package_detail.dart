@@ -4,15 +4,35 @@ import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:travel_app/Widget/booking_sheet.dart';
 import 'package:travel_app/model/travel_package.dart';
 import 'package:travel_app/vm/booking_provider.dart';
+import 'package:travel_app/vm/save_provider.dart';
 
-class PackageDetailPage extends ConsumerWidget {
+// ✅ 저장 상태 Provider
+final packageSavedProvider =
+    StateProvider.family<bool, String>((ref, String packageId) => false);
+
+class PackageDetailPage extends ConsumerStatefulWidget {
   final TravelPackage package;
 
   const PackageDetailPage({super.key, required this.package});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pkg = package;
+  ConsumerState<PackageDetailPage> createState() => _PackageDetailPageState();
+}
+
+class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Firestore에서 현재 저장 여부 확인 후 provider에 반영
+    SaveProvider().isPackageSaved(widget.package.id).then((saved) {
+      ref.read(packageSavedProvider(widget.package.id).notifier).state = saved;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pkg = widget.package;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -31,13 +51,15 @@ class PackageDetailPage extends ConsumerWidget {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomActions(context, ref, pkg),
+      bottomNavigationBar: _buildBottomActions(context, pkg),
     );
   }
 
   // -------------------- 위젯 빌더 --------------------
 
   Widget _buildAppBar(BuildContext context, TravelPackage pkg) {
+    final isSaved = ref.watch(packageSavedProvider(pkg.id));
+
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
@@ -70,7 +92,28 @@ class PackageDetailPage extends ConsumerWidget {
             children: [
               _circleBtn(icon: Icons.share, onTap: () {}),
               const SizedBox(width: 8),
-              _circleBtn(icon: Icons.favorite_border, onTap: () {}),
+              _circleBtn(
+                icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
+                onTap: () async {
+                  final saveProvider = SaveProvider();
+                  try {
+                    final newState = !isSaved;
+                    await saveProvider.togglePackage(pkg.id);
+                    ref.read(packageSavedProvider(pkg.id).notifier).state =
+                        newState;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              newState ? "저장되었습니다!" : "저장 해제되었습니다.")),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("실패: $e")),
+                    );
+                  }
+                },
+              ),
             ],
           )
         ],
@@ -111,28 +154,24 @@ class PackageDetailPage extends ConsumerWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: pkg.images.isNotEmpty
-            ? Stack(
-                children: [
-                  cs.CarouselSlider(
-                    options: cs.CarouselOptions(
-                      height: 250,
-                      viewportFraction: 1.0,
-                      enableInfiniteScroll: pkg.images.length > 1,
-                      autoPlay: pkg.images.length > 1,
+            ? cs.CarouselSlider(
+                options: cs.CarouselOptions(
+                  height: 250,
+                  viewportFraction: 1.0,
+                  enableInfiniteScroll: pkg.images.length > 1,
+                  autoPlay: pkg.images.length > 1,
+                ),
+                items: pkg.images.map((url) {
+                  return Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder: (c, e, s) => Container(
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.image, size: 60),
                     ),
-                    items: pkg.images.map((url) {
-                      return Image.network(
-                        url,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (c, e, s) => Container(
-                          color: Colors.grey.shade200,
-                          child: const Icon(Icons.image, size: 60),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                  );
+                }).toList(),
               )
             : Container(
                 color: Colors.grey.shade200,
@@ -251,8 +290,7 @@ class PackageDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBottomActions(
-      BuildContext context, WidgetRef ref, TravelPackage pkg) {
+  Widget _buildBottomActions(BuildContext context, TravelPackage pkg) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -331,7 +369,8 @@ class PackageDetailPage extends ConsumerWidget {
                                         IconButton(
                                           icon: const Icon(Icons.add),
                                           onPressed: () {
-                                            if (tempCount < int.parse(pkg.pCount)) {
+                                            if (tempCount <
+                                                int.parse(pkg.pCount)) {
                                               setState(() => tempCount++);
                                             }
                                           },
@@ -374,15 +413,13 @@ class PackageDetailPage extends ConsumerWidget {
                       try {
                         final bookingProvider = BookingProvider();
                         await bookingProvider.createBooking(
-                          aid: pkg.id,
-                          pricePerSeat: int.parse(pkg.pPrice),
-                          selectedSeats: const [], // 패키지는 좌석 없음
-                          flightDate: pkg.pStart,
-                          passports:
-                              List<String>.from(result['passports']), // ✅ 여권
-                          payment: result['payment'], // ✅ 결제
-                          what: "패키지"
-                        );
+                            aid: pkg.id,
+                            pricePerSeat: int.parse(pkg.pPrice),
+                            selectedSeats: const [], // 패키지는 좌석 없음
+                            flightDate: pkg.pStart,
+                            passports: List<String>.from(result['passports']),
+                            payment: result['payment'],
+                            what: "패키지");
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("예약이 완료되었습니다!")),

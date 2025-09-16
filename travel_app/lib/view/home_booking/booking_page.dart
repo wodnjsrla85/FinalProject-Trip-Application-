@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/Widget/booking_sheet.dart';
 import 'package:travel_app/model/airport.dart';
 import 'package:travel_app/vm/booking_provider.dart';
+import 'package:travel_app/vm/save_provider.dart';
 
 class BookingPage extends ConsumerStatefulWidget {
   final Airport flight;
@@ -70,6 +71,36 @@ class _BookingPageState extends ConsumerState<BookingPage> {
       appBar: AppBar(
         title: Text("${flight.start} → ${flight.end}"),
         centerTitle: true,
+        actions: [
+          // ✅ 저장 버튼 (항공편 북마크)
+          FutureBuilder<bool>(
+            future: SaveProvider().isFlightSaved(flight.id),
+            builder: (context, snapshot) {
+              final isSaved = snapshot.data ?? false;
+              return IconButton(
+                icon: Icon(
+                  isSaved ? Icons.bookmark : Icons.bookmark_border,
+                  color: isSaved ? Colors.amber : Colors.white,
+                ),
+                onPressed: () async {
+                  try {
+                    await SaveProvider().toggleFlight(flight.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              isSaved ? "저장 해제되었습니다." : "저장되었습니다!")),
+                    );
+                    setState(() {}); // UI 갱신
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("실패: $e")),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -216,66 +247,61 @@ class _BookingPageState extends ConsumerState<BookingPage> {
       ),
 
       // 예약 버튼
-      // 예약 버튼 부분
-bottomNavigationBar: selectedClass != null && selectedSeats.isNotEmpty
-    ? Container(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: () async {
-            final result = await showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      bottomNavigationBar: selectedClass != null && selectedSeats.isNotEmpty
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    builder: (_) => BookingSheet(
+                      passengerCount: widget.passengerCount,
+                    ),
+                  );
+
+                  if (result != null) {
+                    try {
+                      await bookingProvider.createBooking(
+                        aid: widget.flight.id,
+                        pricePerSeat: _getPricePerSeat(),
+                        selectedSeats: selectedSeats.toList(),
+                        flightDate: widget.flight.date,
+                        passports: List<String>.from(result['passports']),
+                        payment: result['payment'],
+                        what: "항공기",
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("예약이 완료되었습니다!")),
+                      );
+
+                      _loadOccupiedSeats(); // 예약 후 좌석 갱신
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("예약 실패: $e")),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: selectedSeats.length == widget.passengerCount
+                      ? Colors.blue
+                      : Colors.grey,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  selectedSeats.length == widget.passengerCount
+                      ? "Book Now (${selectedSeats.length}/${widget.passengerCount})"
+                      : "Select ${widget.passengerCount - selectedSeats.length} more seats",
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
-              builder: (_) => BookingSheet(
-                passengerCount: widget.passengerCount, // ✅ 인원 수 전달
-              ),
-            );
-
-            if (result != null) {
-              try {
-                print("여권번호들: ${result['passports']}");
-                print("결제방식: ${result['payment']}");
-
-                await bookingProvider.createBooking(
-                  aid: widget.flight.id,
-                  pricePerSeat: _getPricePerSeat(),
-                  selectedSeats: selectedSeats.toList(),
-                  flightDate: widget.flight.date,
-                  passports: List<String>.from(result['passports']), // ✅ 여권번호들
-                  payment: result['payment'],                        // ✅ 결제방식
-                  what: "항공기"
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("예약이 완료되었습니다!")),
-                );
-
-                _loadOccupiedSeats(); // 예약 후 좌석 갱신
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("예약 실패: $e")),
-                );
-              }
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: selectedSeats.length == widget.passengerCount
-                ? Colors.blue
-                : Colors.grey,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: Text(
-            selectedSeats.length == widget.passengerCount
-                ? "Book Now (${selectedSeats.length}/${widget.passengerCount})"
-                : "Select ${widget.passengerCount - selectedSeats.length} more seats",
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
-        ),
-      )
-    : null,
-
+            )
+          : null,
     );
   }
 
