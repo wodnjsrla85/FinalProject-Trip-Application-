@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
-import 'package:travel_app/view/My_page/flights_booking_list.dart';
-import 'package:travel_app/view/login/join/login.dart';
+import 'package:travel_app/view/My_page/package_booking_List.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/vm/user_provider.dart';
 
@@ -137,16 +136,21 @@ class MyPage extends ConsumerWidget {
                   children: [
                     _buildMenuTitle('내 활동'),
                     _buildMenuItem(
-                      icon: Icons.bookmark_outline,
-                      title: '내 항공권예약',
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FlightsBookingList(),));
-                      },
+                      icon: Icons.flight_takeoff,
+                      title: '내 항공권 예약',
+                      onTap: () {},
                     ),
                     _buildMenuItem(
-                      icon: Icons.favorite_outline,
-                      title: '내 저장',
-                      onTap: () {},
+                      icon: Icons.card_travel,
+                      title: '내 패키지 예약',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PackageBookingList(),
+                          ),
+                        );
+                      },
                     ),
                     _buildMenuItem(
                       icon: Icons.video_library_outlined,
@@ -225,8 +229,7 @@ class MyPage extends ConsumerWidget {
                                   child: const Text('취소'),
                                 ),
                                 TextButton(
-                                  onPressed: () { Navigator.pop(context, true); Navigator.push(context, MaterialPageRoute(builder: (context) => Login(),));},
-
+                                  onPressed: () => Navigator.pop(context, true),
                                   child: const Text('로그아웃'),
                                 ),
                               ],
