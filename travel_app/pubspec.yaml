@@ -59,6 +59,9 @@ dependencies:
 
   portone_flutter: ^0.12.1
 
+  # webview
+  webview_flutter: ^4.13.0
+
   # 상태관리 
   flutter_riverpod: ^2.6.1
 

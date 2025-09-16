@@ -7,8 +7,9 @@ import 'package:travel_app/vm/booking_provider.dart';
 import 'package:travel_app/vm/save_provider.dart';
 
 // ✅ 저장 상태 Provider
-final packageSavedProvider =
-    StateProvider.family<bool, String>((ref, String packageId) => false);
+final packageSavedProvider = StateProvider.family<bool, String>(
+  (ref, String packageId) => false,
+);
 
 class PackageDetailPage extends ConsumerStatefulWidget {
   final TravelPackage package;
@@ -104,18 +105,18 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text(
-                              newState ? "저장되었습니다!" : "저장 해제되었습니다.")),
+                        content: Text(newState ? "저장되었습니다!" : "저장 해제되었습니다."),
+                      ),
                     );
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("실패: $e")),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("실패: $e")));
                   }
                 },
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -153,32 +154,35 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: pkg.images.isNotEmpty
-            ? cs.CarouselSlider(
-                options: cs.CarouselOptions(
-                  height: 250,
-                  viewportFraction: 1.0,
-                  enableInfiniteScroll: pkg.images.length > 1,
-                  autoPlay: pkg.images.length > 1,
+        child:
+            pkg.images.isNotEmpty
+                ? cs.CarouselSlider(
+                  options: cs.CarouselOptions(
+                    height: 250,
+                    viewportFraction: 1.0,
+                    enableInfiniteScroll: pkg.images.length > 1,
+                    autoPlay: pkg.images.length > 1,
+                  ),
+                  items:
+                      pkg.images.map((url) {
+                        return Image.network(
+                          url,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          errorBuilder:
+                              (c, e, s) => Container(
+                                color: Colors.grey.shade200,
+                                child: const Icon(Icons.image, size: 60),
+                              ),
+                        );
+                      }).toList(),
+                )
+                : Container(
+                  color: Colors.grey.shade200,
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported, size: 60),
+                  ),
                 ),
-                items: pkg.images.map((url) {
-                  return Image.network(
-                    url,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (c, e, s) => Container(
-                      color: Colors.grey.shade200,
-                      child: const Icon(Icons.image, size: 60),
-                    ),
-                  );
-                }).toList(),
-              )
-            : Container(
-                color: Colors.grey.shade200,
-                child: const Center(
-                  child: Icon(Icons.image_not_supported, size: 60),
-                ),
-              ),
       ),
     );
   }
@@ -338,57 +342,61 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                     int passengerCount = 1;
 
                     // ✅ 인원 선택 다이얼로그
-                    passengerCount = await showDialog<int>(
+                    passengerCount =
+                        await showDialog<int>(
                           context: context,
                           builder: (ctx) {
                             int tempCount = 1;
                             return AlertDialog(
                               title: const Text("인원 선택"),
                               content: StatefulBuilder(
-                                builder: (c, setState) => Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text("여행 인원을 선택하세요"),
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                builder:
+                                    (c, setState) => Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.remove),
-                                          onPressed: () {
-                                            if (tempCount > 1) {
-                                              setState(() => tempCount--);
-                                            }
-                                          },
-                                        ),
-                                        Text(
-                                          "$tempCount",
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            if (tempCount <
-                                                int.parse(pkg.pCount)) {
-                                              setState(() => tempCount++);
-                                            }
-                                          },
+                                        Text("여행 인원을 선택하세요"),
+                                        const SizedBox(height: 12),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.remove),
+                                              onPressed: () {
+                                                if (tempCount > 1) {
+                                                  setState(() => tempCount--);
+                                                }
+                                              },
+                                            ),
+                                            Text(
+                                              "$tempCount",
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.add),
+                                              onPressed: () {
+                                                if (tempCount <
+                                                    int.parse(pkg.pCount)) {
+                                                  setState(() => tempCount++);
+                                                }
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
                               ),
                               actions: [
                                 TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(ctx, passengerCount),
+                                  onPressed:
+                                      () => Navigator.pop(ctx, passengerCount),
                                   child: const Text("취소"),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () =>
-                                      Navigator.pop(ctx, tempCount),
+                                  onPressed:
+                                      () => Navigator.pop(ctx, tempCount),
                                   child: const Text("확인"),
                                 ),
                               ],
@@ -402,32 +410,35 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
                       ),
-                      builder: (_) =>
-                          BookingSheet(passengerCount: passengerCount),
+                      builder:
+                          (_) => BookingSheet(passengerCount: passengerCount),
                     );
 
                     if (result != null) {
                       try {
                         final bookingProvider = BookingProvider();
                         await bookingProvider.createBooking(
-                            aid: pkg.id,
-                            pricePerSeat: int.parse(pkg.pPrice),
-                            selectedSeats: const [], // 패키지는 좌석 없음
-                            flightDate: pkg.pStart,
-                            passports: List<String>.from(result['passports']),
-                            payment: result['payment'],
-                            what: "패키지");
+                          aid: pkg.id,
+                          pricePerSeat: int.parse(pkg.pPrice),
+                          selectedSeats: const [],
+                          flightDate: pkg.pStart,
+                          passports: List<String>.from(result['passports']),
+                          payment: result['payment'],
+                          what: "패키지",
+                          passengerCount: passengerCount,
+                        ); // 이 줄 추가!
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("예약이 완료되었습니다!")),
                         );
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("예약 실패: $e")),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text("예약 실패: $e")));
                       }
                     }
                   },

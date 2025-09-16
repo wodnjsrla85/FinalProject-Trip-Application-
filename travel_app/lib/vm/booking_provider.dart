@@ -7,15 +7,13 @@ class BookingProvider {
   final bookingRef = FirebaseFirestore.instance.collection('booking');
   final packageRef = FirebaseFirestore.instance.collection('package');
 
-  Future<String> createBooking({
+
   // 항공권 / 패키지 예약
   // 항공권 / 패키지 예약
 Future<String> createBooking({
   required String aid,
   required int pricePerSeat,
   required List<String> selectedSeats,
-  required List<String> passports,  // ✅ 추가
-  required String payment,          // ✅ 추가
   required List<String> passports,
   required String payment,
   String? flightDate,
@@ -27,7 +25,6 @@ Future<String> createBooking({
     throw Exception("로그인한 유저가 없습니다.");
   }
 
-  final totalPrice = pricePerSeat * selectedSeats.length;
   // 패키지와 항공권에 따라 다른 가격 계산
   final int totalPrice;
   final List<String> seats; // bSit에 들어갈 데이터
@@ -50,15 +47,10 @@ Future<String> createBooking({
     aid: aid,
     uEmail: user.email ?? "unknown",
     aPrice: totalPrice,
-    bDate: DateTime.now().toIso8601String(),
-    bSit: selectedSeats,
     bDate: DateTime.now().toString().substring(0, 10),
     bSit: seats, // 수정된 부분
     bid: docRef.id,
     bState: "결제완료",
-    passports: passports,   // ✅ 저장
-    payment: payment,       // ✅ 저장
-    what: what,       // ✅ 저장
     passports: passports,
     payment: payment,
     what: what,
@@ -68,8 +60,6 @@ Future<String> createBooking({
   return docRef.id;
 }
 
-
-  // ✅ 특정 항공편 예약 좌석 불러오기
   // 특정 항공편 예약 좌석 불러오기
   Future<Set<String>> getOccupiedSeats(String aid) async {
     final querySnapshot = await bookingRef
@@ -80,8 +70,6 @@ Future<String> createBooking({
     final seats = querySnapshot.docs
         .map((doc) => List<String>.from(doc['bSit'])) // bSit 배열 가져오기
         .expand((s) => s) // flatten
-        .map((doc) => List<String>.from(doc['bSit']))
-        .expand((s) => s)
         .toSet();
 
     return seats;
@@ -99,14 +87,14 @@ Future<String> createBooking({
         .orderBy('bDate', descending: true)
         .get();
 
-    return querySnapshot.docs
     final bookings = querySnapshot.docs
         .map((doc) => Booking.fromMap(doc.data(), doc.id))
         .toList();
 
     // 앱에서 날짜순 정렬
-    bookings.sort((a, b) => b.bDate!.compareTo(a.bDate!));
+    bookings.sort((a, b) => b.bDate.compareTo(a.bDate));
     return bookings;
+    // return querySnapshot.docs
   }
 
   // 특정 예약 조회
@@ -202,9 +190,6 @@ Future<String> createBooking({
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList());
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Booking.fromMap(doc.data(), doc.id))
-            .toList());
   }
 }
 

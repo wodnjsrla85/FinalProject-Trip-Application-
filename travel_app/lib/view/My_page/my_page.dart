@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:travel_app/flight_tracker_page.dart';
 import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
+import 'package:travel_app/view/My_page/flights_booking_list.dart';
 import 'package:travel_app/view/My_page/package_booking_List.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/vm/user_provider.dart';
@@ -138,8 +140,27 @@ class MyPage extends ConsumerWidget {
                     _buildMenuItem(
                       icon: Icons.flight_takeoff,
                       title: '내 항공권 예약',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const FlightsBookingList(),
+                          ),
+                        );
+                      },
                     ),
+                    _buildMenuItem(
+  icon: Icons.flight,
+  title: '실시간 항공기 추적',
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FlightTrackerPage(),
+      ),
+    );
+  },
+),
                     _buildMenuItem(
                       icon: Icons.card_travel,
                       title: '내 패키지 예약',

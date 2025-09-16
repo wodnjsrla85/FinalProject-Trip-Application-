@@ -129,7 +129,7 @@ class PackageBookingList extends ConsumerWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  '${booking.bSit?.first ?? "1"}명',
+                                  '인원수: ${booking.bSit?.isNotEmpty == true ? booking.bSit!.first : "1"}명',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),
