@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UpdatePackage extends StatefulWidget {
@@ -14,56 +15,56 @@ class UpdatePackage extends StatefulWidget {
 }
 
 class _UpdatePackageState extends State<UpdatePackage> {
-  late TextEditingController nameCtrl;
-  late TextEditingController agencyCtrl;
-  late TextEditingController airlineCtrl;
-  late TextEditingController priceCtrl;
-  late TextEditingController bookingCtrl;
-  late TextEditingController planCtrl;
-  late TextEditingController countCtrl;
-  late TextEditingController startCtrl;
-  late TextEditingController endCtrl;
+  late TextEditingController packageName;
+  late TextEditingController agencyName;
+  late TextEditingController airlineCode;
+  late TextEditingController packagePrice;
+  late TextEditingController bookingNumber;
+  late TextEditingController packagePlan;
+  late TextEditingController groupCount;
+  late TextEditingController startDate;
+  late TextEditingController endDate;
 
   final ImagePicker picker = ImagePicker();
   final int minCount = 4;
   final int maxCount = 4;
 
-  List<String> savedUrls = [];
+  List<String> savedImageUrls = [];
   List<XFile> newImages = [];
 
   late String status;
-  final List<String> statusList = ['모집중', '모집마감'];
+  final List<String> statusOptions = ['모집중', '모집마감'];
 
-  bool uploading = false;
+  bool isUploading = false;
 
   @override
   void initState() {
     super.initState();
     final data = widget.packageDoc.data() as Map<String, dynamic>;
-    nameCtrl = TextEditingController(text: data['pName'] ?? '');
-    agencyCtrl = TextEditingController(text: data['tName'] ?? '');
-    airlineCtrl = TextEditingController(text: data['aId'] ?? '');
-    priceCtrl = TextEditingController(text: data['pPrice'] ?? '');
-    bookingCtrl = TextEditingController(text: data['pNum'] ?? '');
-    planCtrl = TextEditingController(text: data['pPlan'] ?? '');
-    countCtrl = TextEditingController(text: data['pCount'] ?? '');
-    startCtrl = TextEditingController(text: data['pStart'] ?? '');
-    endCtrl = TextEditingController(text: data['pEnd'] ?? '');
-    savedUrls = List<String>.from(data['images'] ?? []);
-    status = data['pState'] ?? statusList.first;
+    packageName = TextEditingController(text: data['pName'] ?? '');
+    agencyName = TextEditingController(text: data['tName'] ?? '');
+    airlineCode = TextEditingController(text: data['aId'] ?? '');
+    packagePrice = TextEditingController(text: data['pPrice'] ?? '');
+    bookingNumber = TextEditingController(text: data['pNum'] ?? '');
+    packagePlan = TextEditingController(text: data['pPlan'] ?? '');
+    groupCount = TextEditingController(text: data['pCount'] ?? '');
+    startDate = TextEditingController(text: data['pStart'] ?? '');
+    endDate = TextEditingController(text: data['pEnd'] ?? '');
+    savedImageUrls = List<String>.from(data['images'] ?? []);
+    status = data['pState'] ?? statusOptions.first;
   }
 
   @override
   void dispose() {
-    nameCtrl.dispose();
-    agencyCtrl.dispose();
-    airlineCtrl.dispose();
-    priceCtrl.dispose();
-    bookingCtrl.dispose();
-    planCtrl.dispose();
-    countCtrl.dispose();
-    startCtrl.dispose();
-    endCtrl.dispose();
+    packageName.dispose();
+    agencyName.dispose();
+    airlineCode.dispose();
+    packagePrice.dispose();
+    bookingNumber.dispose();
+    packagePlan.dispose();
+    groupCount.dispose();
+    startDate.dispose();
+    endDate.dispose();
     super.dispose();
   }
 
@@ -77,8 +78,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             Container(
               width: 32,
               height: 32,
-              decoration:
-                  BoxDecoration(color: Colors.blue[600], borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(color: Colors.blue[600], borderRadius: BorderRadius.circular(6)),
               child: Icon(Icons.flight_takeoff, color: Colors.white, size: 20),
             ),
             SizedBox(width: 12),
@@ -98,7 +98,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             children: [
               Text('여행 패키지 수정', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('패키지 정보를 수정하고 저장하세요.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+              Text('패키지 정보를 수정하고 저장하세요. 새 이미지 선택 시 기존 이미지가 완전히 교체됩니다.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
               SizedBox(height: 40),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,35 +111,35 @@ class _UpdatePackageState extends State<UpdatePackage> {
                         children: [
                           Row(
                             children: [
-                              Expanded(child: buildTextField(nameCtrl, '패키지명', '예: 산토리니 여름 휴가')),
+                              Expanded(child: buildTextField(packageName, '패키지명', '예: 산토리니')),
                               SizedBox(width: 20),
-                              Expanded(child: buildTextField(agencyCtrl, '여행사명', '예: 글로브트로터스')),
+                              Expanded(child: buildTextField(agencyName, '여행사명', '예: 좋은여행사')),
                             ],
                           ),
                           SizedBox(height: 20),
                           Row(
                             children: [
-                              Expanded(child: buildTextField(airlineCtrl, '항공편 번호', '예: GT-1234')),
+                              Expanded(child: buildTextField(airlineCode, '항공편 번호', '예: GT123')),
                               SizedBox(width: 20),
-                              Expanded(child: buildTextField(bookingCtrl, '패키지 예매번호', '예: PKG-98765')),
+                              Expanded(child: buildTextField(bookingNumber, '패키지 예매번호', '예: PKG456')),
                             ],
                           ),
                           SizedBox(height: 20),
-                          buildTextField(planCtrl, '패키지 설명', '여행 패키지를 자세히 설명해주세요...', maxLines: 5),
+                          buildTextField(packagePlan, '패키지 설명', '여행 패키지를 자세히 설명해주세요...', maxLines: 5),
                           SizedBox(height: 20),
                           Row(
                             children: [
-                              Expanded(child: buildNumField(priceCtrl, '가격 (원)', '예: 2,500,000')),
+                              Expanded(child: buildNumField(packagePrice, '가격 (원)', '예: 2500000')),
                               SizedBox(width: 20),
-                              Expanded(child: buildNumField(countCtrl, '최대 인원', '예: 50')),
+                              Expanded(child: buildNumField(groupCount, '최대 인원', '예: 50')),
                             ],
                           ),
                           SizedBox(height: 20),
                           Row(
                             children: [
-                              Expanded(child: buildTextField(startCtrl, '출발일', '2025.09.10.')),
+                              Expanded(child: buildTextField(startDate, '출발일', '2025.09.10.')),
                               SizedBox(width: 20),
-                              Expanded(child: buildTextField(endCtrl, '도착일', '2025.09.14.')),
+                              Expanded(child: buildTextField(endDate, '도착일', '2025.09.14.')),
                             ],
                           ),
                           SizedBox(height: 20),
@@ -153,9 +153,10 @@ class _UpdatePackageState extends State<UpdatePackage> {
                     child: Container(
                       padding: EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!)),
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -165,7 +166,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
                           SizedBox(height: 20),
                           imageGrid(),
                           SizedBox(height: 16),
-                          Text('최소 $minCount장 이미지 유지', style: TextStyle(fontSize: 12, color: Colors.blue[600])),
+                          Text('최소 $minCount장 이미지 필요', style: TextStyle(fontSize: 12, color: Colors.blue[600])),
                         ],
                       ),
                     ),
@@ -176,25 +177,25 @@ class _UpdatePackageState extends State<UpdatePackage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: uploading ? null : updateAction,
+                  onPressed: isUploading ? null : updateAction,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[600],
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: uploading
+                  child: isUploading
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
                             SizedBox(width: 12),
-                            Text('업로드 중...'),
+                            Text('수정 중...'),
                           ],
                         )
                       : Text('여행 패키지 수정하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -268,7 +269,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             value: status,
             underline: Container(),
             isExpanded: true,
-            items: statusList.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+            items: statusOptions.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
             onChanged: (v) => setState(() => status = v ?? status),
           ),
         ),
@@ -279,15 +280,30 @@ class _UpdatePackageState extends State<UpdatePackage> {
   Widget imageUploadBtn() {
     return Container(
       height: 120,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!), color: Colors.white),
-      child: InkWell(
-        onTap: uploading ? null : pickImages,
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.cloud_upload_outlined, size: 32, color: uploading ? Colors.grey[400] : Colors.blue[600]),
-          SizedBox(height: 8),
-          Text('클릭하여 업로드', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: uploading ? Colors.grey[400] : Colors.grey[700]))
-        ]),
+        border: Border.all(color: newImages.isNotEmpty ? Colors.orange[300]! : Colors.grey[300]!, width: newImages.isNotEmpty ? 2 : 1),
+        color: Colors.white,
+      ),
+      child: InkWell(
+        onTap: isUploading ? null : pickImages,
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              newImages.isNotEmpty ? Icons.swap_horiz : Icons.cloud_upload_outlined,
+              size: 32,
+              color: isUploading ? Colors.grey[400] : (newImages.isNotEmpty ? Colors.orange[600] : Colors.blue[600]),
+            ),
+            SizedBox(height: 8),
+            Text(
+              newImages.isNotEmpty ? '새 이미지 ${newImages.length}개 선택됨' : '클릭하여 새 이미지 업로드',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isUploading ? Colors.grey[400] : Colors.grey[700]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -299,12 +315,18 @@ class _UpdatePackageState extends State<UpdatePackage> {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1),
       itemCount: maxCount,
       itemBuilder: (_, i) {
-        if (i < savedUrls.length) {
-          return buildSavedImage(savedUrls[i], i);
-        } else if (i - savedUrls.length < newImages.length) {
-          return buildNewImage(newImages[i - savedUrls.length], i - savedUrls.length);
+        if (newImages.isNotEmpty) {
+          if (i < newImages.length) {
+            return buildNewImage(newImages[i], i);
+          } else {
+            return emptySlot();
+          }
         } else {
-          return emptySlot();
+          if (i < savedImageUrls.length) {
+            return buildSavedImage(savedImageUrls[i], i);
+          } else {
+            return emptySlot();
+          }
         }
       },
     );
@@ -322,12 +344,18 @@ class _UpdatePackageState extends State<UpdatePackage> {
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
-              loadingBuilder: (c, child, loading) => loading == null ? child : Container(color: Colors.blue[100], child: Center(child: CircularProgressIndicator())),
-              errorBuilder: (_, __, ___) => Container(color: Colors.orange[200], child: Icon(Icons.wifi_off, color: Colors.orange)),
+              loadingBuilder: (c, child, loading) => loading == null ? child : Container(color: Colors.blue[100], child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+              errorBuilder: (_, __, ___) => Container(
+                color: Colors.orange[200],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Icon(Icons.wifi_off, color: Colors.orange, size: 20), Text('CORS\n오류', style: TextStyle(fontSize: 8, color: Colors.orange), textAlign: TextAlign.center)],
+                ),
+              ),
             ),
           ),
         ),
-        Positioned(top: 6, right: 6, child: GestureDetector(onTap: uploading ? null : () => setState(() => savedUrls.removeAt(index)), child: closeBtn())),
+        Positioned(top: 6, right: 6, child: GestureDetector(onTap: isUploading ? null : () => setState(() => savedImageUrls.removeAt(index)), child: closeBtn())),
       ],
     );
   }
@@ -336,18 +364,27 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Stack(
       children: [
         Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey[200], border: Border.all(color: Colors.orange[400]!, width: 2)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: kIsWeb
                 ? FutureBuilder<List<int>>(
                     future: image.readAsBytes(),
-                    builder: (_, snap) =>
-                        snap.hasData ? Image.memory(Uint8List.fromList(snap.data!), fit: BoxFit.cover) : Center(child: CircularProgressIndicator()))
-                : Image.file(File(image.path), fit: BoxFit.cover),
+                    builder: (_, snap) => snap.hasData ? Image.memory(Uint8List.fromList(snap.data!), fit: BoxFit.cover, width: double.infinity, height: double.infinity) : Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  )
+                : Image.file(File(image.path), fit: BoxFit.cover, width: double.infinity, height: double.infinity),
           ),
         ),
-        Positioned(top: 6, right: 6, child: GestureDetector(onTap: uploading ? null : () => setState(() => newImages.removeAt(index)), child: closeBtn())),
+        Positioned(
+          top: 6,
+          left: 6,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(color: Colors.orange[600], borderRadius: BorderRadius.circular(6)),
+            child: Text('NEW', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+          ),
+        ),
+        Positioned(top: 6, right: 6, child: GestureDetector(onTap: isUploading ? null : () => setState(() => newImages.removeAt(index)), child: closeBtn())),
       ],
     );
   }
@@ -384,89 +421,132 @@ class _UpdatePackageState extends State<UpdatePackage> {
       if (picked != null) {
         setState(() {
           newImages.clear();
-          newImages.addAll(picked.take(maxCount - savedUrls.length));
+          newImages.addAll(picked.take(maxCount));
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 이미지 선택됨'), backgroundColor: Colors.green[600]));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 새 이미지 선택됨'), backgroundColor: Colors.orange[600]));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택 오류: $e'), backgroundColor: Colors.red[600]));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택 오류'), backgroundColor: Colors.red[600]));
     }
   }
 
   Future<void> updateAction() async {
-    if (nameCtrl.text.trim().isEmpty) {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+    } catch (authError) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Firebase 인증 실패: 네트워크를 확인해주세요.'), backgroundColor: Colors.red[600]));
+      return;
+    }
+
+    if (packageName.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('패키지명을 입력하세요'), backgroundColor: Colors.red));
       return;
     }
-    if ((savedUrls.length + newImages.length) < minCount) {
+
+    int totalImageCount = newImages.isNotEmpty ? newImages.length : savedImageUrls.length;
+    if (totalImageCount < minCount) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('최소 $minCount장 이미지가 필요합니다'), backgroundColor: Colors.red));
       return;
     }
 
-    setState(() => uploading = true);
+    setState(() => isUploading = true);
+
     try {
-      final newUrls = await uploadImages();
-      final allUrls = [...savedUrls, ...newUrls];
+      List<String> finalImageUrls = [];
+
+      if (newImages.isNotEmpty) {
+        await deleteOldImages();
+        finalImageUrls = await uploadNewImages();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지가 성공적으로 교체되었습니다'), backgroundColor: Colors.green[600]));
+      } else {
+        finalImageUrls = savedImageUrls;
+      }
+
       await widget.packageDoc.reference.update({
-        'pName': nameCtrl.text.trim(),
-        'tName': agencyCtrl.text.trim(),
-        'aId': airlineCtrl.text.trim(),
-        'pPrice': priceCtrl.text.trim(),
-        'pNum': bookingCtrl.text.trim(),
-        'pPlan': planCtrl.text.trim(),
-        'pCount': countCtrl.text.trim(),
-        'pStart': startCtrl.text.trim(),
-        'pEnd': endCtrl.text.trim(),
+        'pName': packageName.text.trim(),
+        'tName': agencyName.text.trim(),
+        'aId': airlineCode.text.trim(),
+        'pPrice': packagePrice.text.trim(),
+        'pNum': bookingNumber.text.trim(),
+        'pPlan': packagePlan.text.trim(),
+        'pCount': groupCount.text.trim(),
+        'pStart': startDate.text.trim(),
+        'pEnd': endDate.text.trim(),
         'pState': status,
-        'images': allUrls,
+        'images': finalImageUrls,
       });
-      setState(() => uploading = false);
+
+      setState(() => isUploading = false);
+
       showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => AlertDialog(
-                title: Text('수정 완료'),
-                content: Text('여행 패키지가 성공적으로 수정되었습니다.'),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      child: Text('확인'))
-                ],
-              ));
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          title: Row(
+            children: [Icon(Icons.check_circle, color: Colors.green[600]), SizedBox(width: 8), Text('수정 완료')],
+          ),
+          content: Text(newImages.isNotEmpty ? '패키지 수정 및 이미지 교체가 완료되었습니다.' : '패키지 정보가 수정되었습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: Text('확인', style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
-      setState(() => uploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 중 오류: $e'), backgroundColor: Colors.red));
+      setState(() => isUploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 중 오류가 발생했습니다'), backgroundColor: Colors.red));
     }
   }
 
-  Future<List<String>> uploadImages() async {
-    List<String> urls = [];
-
-    String safeName = nameCtrl.text.trim();
-    if (safeName.isEmpty) {
-      safeName = 'default_name';
+  Future<void> deleteOldImages() async {
+    for (String url in savedImageUrls) {
+      try {
+        if (url.startsWith('https://firebasestorage')) {
+          final ref = FirebaseStorage.instance.refFromURL(url);
+          await ref.delete();
+        }
+      } catch (e) {}
     }
-    safeName = safeName.replaceAll(' ', '_');
+  }
+
+  Future<List<String>> uploadNewImages() async {
+    List<String> newUrls = [];
+    String packageNameSafe = packageName.text.trim().replaceAll(' ', '_');
+    if (packageNameSafe.isEmpty) packageNameSafe = 'updated_package';
 
     for (int i = 0; i < newImages.length; i++) {
       try {
-        String fileName = '${safeName}_${i}_{DateTime.now().millisecondsSinceEpoch}.jpg';
+        String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+        String fileName = "${packageNameSafe}_new_${i}_$timestamp.jpg";
+
         final ref = FirebaseStorage.instance.ref().child('images').child(fileName);
+
         if (kIsWeb) {
           final bytes = await newImages[i].readAsBytes();
-          await ref.putData(bytes);
+          await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
         } else {
           await ref.putFile(File(newImages[i].path));
         }
-        final downloadUrl = await ref.getDownloadURL();
-        urls.add(downloadUrl);
+
+        String downloadUrl = await ref.getDownloadURL();
+        newUrls.add(downloadUrl);
       } catch (e) {
-        debugPrint('Upload error: $e');
+        continue;
       }
     }
-    return urls;
+
+    if (newUrls.isEmpty && newImages.isNotEmpty) {
+      throw Exception('모든 새 이미지 업로드에 실패했습니다.');
+    }
+
+    return newUrls;
   }
 }
