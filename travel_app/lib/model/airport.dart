@@ -1,4 +1,5 @@
 class Airport {
+  final String id;
   final String fNum; // 기종
   final String end; // 도착지
   final String start; // 출발지
@@ -17,6 +18,7 @@ class Airport {
   final int tSit; // 총좌석
 
   Airport({
+    required this.id,
     required this.fNum,
     required this.end,
     required this.start,
@@ -37,6 +39,7 @@ class Airport {
 
   factory Airport.fromMap(Map<String, dynamic> map, String docId) {
     return Airport(
+      id: docId,
       fNum: map['기종'] ?? "",
       end: map['목적지'] ?? "",
       start: map['출발지'] ?? "",
