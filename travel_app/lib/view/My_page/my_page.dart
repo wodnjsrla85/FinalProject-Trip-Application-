@@ -6,6 +6,8 @@ import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
 import 'package:travel_app/view/My_page/flights_booking_list.dart';
 import 'package:travel_app/view/My_page/package_booking_List.dart';
+import 'package:travel_app/view/My_page/privacy_police.dart';
+import 'package:travel_app/view/My_page/terms_of_service.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/vm/user_provider.dart';
 
@@ -217,12 +219,26 @@ class MyPage extends ConsumerWidget {
                     _buildMenuItem(
                       icon: Icons.privacy_tip_outlined,
                       title: '개인정보 처리방침',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PrivacyPolicyPage(),
+                          ),
+                        );
+                      },
                     ),
                     _buildMenuItem(
                       icon: Icons.description_outlined,
                       title: '이용약관',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TermsOfServicePage(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
