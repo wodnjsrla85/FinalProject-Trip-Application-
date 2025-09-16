@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:travel_app/flight_tracker_page.dart';
+import 'package:travel_app/view/My_page/flight_tracker_page.dart';
 import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
 import 'package:travel_app/view/My_page/flights_booking_list.dart';
