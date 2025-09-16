@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:travel_app/view/booking_page.dart';
+import 'package:travel_app/view/home_booking/booking_page.dart';
 import 'package:travel_app/vm/home_provider.dart';
 
 class FlightResult extends ConsumerWidget {

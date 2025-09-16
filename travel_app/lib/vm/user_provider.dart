@@ -24,28 +24,28 @@ class UserProvider {
   }
 }
 
-/// ✅ FirebaseAuth 인스턴스 Provider
+/// FirebaseAuth 인스턴스 Provider
 final firebaseAuthProvider = Provider<fa.FirebaseAuth>((ref) {
   return fa.FirebaseAuth.instance;
 });
 
-/// ✅ 현재 로그인한 Auth 유저 Provider (즉시 접근용)
+/// 현재 로그인한 Auth 유저 Provider (즉시 접근용)
 final currentUserProvider = Provider<fa.User?>((ref) {
   return ref.watch(firebaseAuthProvider).currentUser;
 });
 
-/// ✅ 로그인 상태 감지 Provider (User? 반환)
+/// 로그인 상태 감지 Provider (User? 반환)
 final authStateProvider = StreamProvider<fa.User?>((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   return auth.authStateChanges();
 });
 
-/// ✅ UserRepository Provider
+/// UserRepository Provider
 final userProvider = Provider<UserProvider>((ref) {
   return UserProvider();
 });
 
-/// ✅ Firestore에서 내 users/{uid} 문서 실시간 구독
+/// Firestore에서 내 users/{uid} 문서 실시간 구독
 final userStreamProvider = StreamProvider<AppUser?>((ref) {
   final authState = ref.watch(authStateProvider);
 
