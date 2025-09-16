@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:travel_app/main_tab_screen.dart';
 import 'package:travel_app/view/home_booking/home.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/view/login/join/join.dart';
@@ -318,7 +319,7 @@ class Login extends ConsumerWidget {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Home(),)
+          MaterialPageRoute(builder: (context) => MainTabScreen(),)
         );
                 
       } on FirebaseAuthException catch (_) {

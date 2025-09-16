@@ -39,11 +39,7 @@ class AuthWrapper extends StatelessWidget {
           );
         }
         
-        if (snapshot.hasData) {
-          return const MainTabScreen(); // 로그인됨 -> 탭바
-        } else {
-          return const Login(); // 로그인 안됨 -> 로그인 화면
-        }
+        return Login();
       },
     );
   }
