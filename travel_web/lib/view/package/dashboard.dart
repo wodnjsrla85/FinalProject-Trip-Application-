@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:travel_web/view/inquiry/inquiry_main.dart';
 import 'package:travel_web/view/package/travel_package_main.dart';
 
 /// 여행사 관리자 대시보드 화면
@@ -12,23 +13,30 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   
-  // --- 테마 컬러 설정 (눈이 편한 색상) ---
-  final Color primaryColor = Color(0xFF4A90E2);      // 부드러운 파란색 (메인 컬러)
-  final Color secondaryColor = Color(0xFF7ED321);    // 부드러운 초록색 (보조 컬러)
-  final Color lightGray = Color(0xFFF5F7FA);         // 연한 회색 (배경용)
-  final Color mediumGray = Color(0xFFE1E8ED);        // 중간 회색 (테두리용)
+  // --- 강화된 테마 컬러 설정 ---
+  final Color primaryColor = Color(0xFF2C5AA0);      // 진한 파란색 (고객분석)
+  final Color secondaryColor = Color(0xFF5B8A2A);    // 진한 초록색 (패키지관리)
+  final Color tertiaryColor = Color(0xFFE67E22);     // 진한 주황색 (문의)
+  final Color lightGray = Color(0xFFF8F9FA);         // 밝은 배경
+  final Color mediumGray = Color(0xFFDEE2E6);        // 진한 경계선
+  final Color darkText = Color(0xFF2C3E50);          // 진한 텍스트
   
   // --- 상단 카드 데이터 ---
-  String thisMonthGuest = '0명';      // 이달 예약 고객수
-  String thisMonthMoney = '0원';      // 이달 매출액
-  String cancelPercent = '0%';        // 취소율
-  String returnPercent = '0%';        // 재구매율
+  String thisMonthGuest = '0명';
+  String thisMonthMoney = '0원';
+  String cancelPercent = '0%';
+  String returnPercent = '0%';
   
   // --- 패키지 개수 데이터 ---  
-  int allPackage = 0;                 // 전체 패키지
-  int openPackage = 0;                // 모집중 패키지
-  int closePackage = 0;               // 모집마감 패키지
-  int goPackage = 0;                  // 출발확정 패키지
+  int allPackage = 0;
+  int openPackage = 0;
+  int closePackage = 0;
+  int goPackage = 0;
+  
+  // --- 문의 개수 데이터 ---
+  int allInquiry = 0;
+  int waitingInquiry = 0;
+  int completeInquiry = 0;
   
   // --- TOP5 리스트 ---
   List<Map<String, dynamic>> top5List = [];
@@ -38,17 +46,26 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     getPackageData();
     getBookingData();
+    getInquiryData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightGray,    // 전체 배경을 연한 회색으로
+      backgroundColor: lightGray,
       appBar: AppBar(
-        title: Text("패키지 관리 대시보드"),
+        title: Text(
+          "대시보드",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: darkText,
+          ),
+        ),
         backgroundColor: Colors.white,
-        foregroundColor: primaryColor,    // 제목 색상을 파란색으로
-        elevation: 0,
+        foregroundColor: darkText,
+        elevation: 2,
+        shadowColor: Colors.grey.withOpacity(0.3),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -56,7 +73,7 @@ class _DashboardState extends State<Dashboard> {
           children: [
             // 1. 상단 4개 카드
             makeTopCards(),
-            SizedBox(height: 36),
+            SizedBox(height: 32),
             
             // 2. 중간 차트와 TOP5
             makeMiddleArea(), 
@@ -69,8 +86,6 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
-
-  // ------ 위젯 함수들 ------
 
   // --- 상단 4개 카드 만들기 ---
   Widget makeTopCards() {
@@ -91,20 +106,39 @@ class _DashboardState extends State<Dashboard> {
   Widget makeCard(String title, String value) {
     return Column(
       children: [
-        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor)),
+        Text(
+          title, 
+          style: TextStyle(
+            fontSize: 16, 
+            fontWeight: FontWeight.w600, 
+            color: darkText
+          )
+        ),
         SizedBox(height: 12),
         Container(
           width: double.infinity,
-          height: 120,
+          height: 100,
           decoration: BoxDecoration(
-            color: Colors.white,               // 카드 배경은 흰색
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: mediumGray, width: 1),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: mediumGray, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.15),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Center(
             child: Text(
               value,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: primaryColor),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: darkText,
+              ),
             ),
           ),
         ),
@@ -112,25 +146,13 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  // --- 중간 영역 만들기 (flex 비율 설명 추가) ---
+  // --- 중간 영역 만들기 ---
   Widget makeMiddleArea() {
     return Row(
       children: [
-        // 왼쪽: 차트 영역 (더 넓음)
-        // flex: 2 = 전체 공간의 2/3 (약 67%) 차지
-        Expanded(
-          flex: 2,
-          child: makeChartArea(),
-        ),
+        Expanded(flex: 2, child: makeChartArea()),
         SizedBox(width: 16),
-        
-        // 오른쪽: TOP5 영역 (좁음)  
-        // flex: 1 = 전체 공간의 1/3 (약 33%) 차지
-        // 총 flex 합계: 2 + 1 = 3, 비율 = 2:1
-        Expanded(
-          flex: 1,  
-          child: makeTop5Area(),
-        ),
+        Expanded(flex: 1, child: makeTop5Area()),
       ],
     );
   }
@@ -139,26 +161,40 @@ class _DashboardState extends State<Dashboard> {
   Widget makeChartArea() {
     return Container(
       height: 300,
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: mediumGray),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: mediumGray, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            spreadRadius: 3,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("예약 추이", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
+          Text(
+            "예약 추이", 
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkText)
+          ),
           SizedBox(height: 16),
           Expanded(
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 color: lightGray,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text("예약 추이 차트 (구현 예정)", style: TextStyle(color: Colors.grey.shade600)),
+                child: Text(
+                  "예약 추이 차트 (구현 예정)", 
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16)
+                ),
               ),
             ),
           ),
@@ -171,20 +207,31 @@ class _DashboardState extends State<Dashboard> {
   Widget makeTop5Area() {
     return Container(
       height: 300,
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: mediumGray),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: mediumGray, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            spreadRadius: 3,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("이달 매출 TOP5", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
+          Text(
+            "이달 매출 TOP5", 
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkText)
+          ),
           SizedBox(height: 12),
           Expanded(
             child: top5List.isEmpty
-              ? Center(child: Text("데이터 계산 중...", style: TextStyle(color: Colors.grey.shade600)))
+              ? Center(child: Text("데이터 계산 중...", style: TextStyle(color: Colors.grey.shade600, fontSize: 16)))
               : makeTop5List(),
           ),
         ],
@@ -195,28 +242,27 @@ class _DashboardState extends State<Dashboard> {
   // --- TOP5 리스트 만들기 ---
   Widget makeTop5List() {
     return ListView.separated(
-      separatorBuilder: (_, __) => SizedBox(height: 6),
+      separatorBuilder: (_, __) => SizedBox(height: 8),
       itemCount: top5List.length > 5 ? 5 : top5List.length,
       itemBuilder: (_, index) {
         final item = top5List[index];
-        // 순위별 색상 (파란색 계열로 통일)
         final colors = [
-          primaryColor.withValues(alpha: 0.2),    // 1위: 진한 파란색
-          primaryColor.withValues(alpha: 0.15),   // 2위: 중간 파란색
-          primaryColor.withValues(alpha: 0.1),    // 3위: 연한 파란색
-          lightGray,                              // 4위: 연한 회색
-          lightGray,                              // 5위: 연한 회색
+          primaryColor.withOpacity(0.2),
+          primaryColor.withOpacity(0.15),
+          primaryColor.withOpacity(0.1),
+          lightGray,
+          lightGray,
         ];
         
         return Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           decoration: BoxDecoration(
             color: colors[index],
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: [
-              Text("${index + 1}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
+              Text("${index + 1}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: darkText)),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -225,10 +271,7 @@ class _DashboardState extends State<Dashboard> {
                   overflow: TextOverflow.ellipsis,
                 )
               ),
-              Text(
-                "${addComma(item['sales'] ?? 0)}원",
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: primaryColor)
-              ),
+              Text("${addComma(item['sales'] ?? 0)}원", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: darkText)),
             ],
           ),
         );
@@ -240,11 +283,11 @@ class _DashboardState extends State<Dashboard> {
   Widget makeBottomMenu() {
     return Row(
       children: [
-        Expanded(child: makeCustomerMenu()),    // 고객분석
+        Expanded(child: makeCustomerMenu()),
         SizedBox(width: 16),
-        Expanded(child: makePackageMenu()),     // 패키지관리
+        Expanded(child: makePackageMenu()),
         SizedBox(width: 16),
-        Expanded(child: makeInquiryMenu()),     // 문의
+        Expanded(child: makeInquiryMenu()),
       ],
     );
   }
@@ -252,42 +295,52 @@ class _DashboardState extends State<Dashboard> {
   // --- 고객분석 메뉴 만들기 ---
   Widget makeCustomerMenu() {
     return Container(
-      height: 320,
+      height: 300,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: mediumGray),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: mediumGray, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            spreadRadius: 3,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("고객분석", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
-          SizedBox(height: 16),
+          Text("고객분석", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkText)),
+          SizedBox(height: 14),
           Expanded(
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 color: lightGray,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text("고객 분석 차트 (구현 예정)", style: TextStyle(color: Colors.grey.shade600)),
+                child: Text("고객 분석 차트 (구현 예정)", style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
               ),
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
-            height: 40,
+            height: 44,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.3),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text('고객분석'),
+              child: Text('고객분석', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -295,56 +348,65 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  // --- 패키지관리 메뉴 만들기 ---
+  // --- 패키지관리 메뉴 만들기 (overflow 완전 해결) ---
   Widget makePackageMenu() {
     return Container(
-      height: 320,
+      height: 300,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: mediumGray),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: mediumGray, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            spreadRadius: 3,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("패키지관리", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
-          SizedBox(height: 12),
+          Text("패키지관리", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkText)),
+          SizedBox(height: 8),
           Expanded(
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: lightGray,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("패키지 현황", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
-                  SizedBox(height: 12),
+                  Text("패키지 현황", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: darkText)),
+                  SizedBox(height: 8),
                   makeStatusLine("모집중", openPackage),
-                  SizedBox(height: 6),
+                  SizedBox(height: 3),
                   makeStatusLine("모집마감", closePackage),
-                  SizedBox(height: 6),
+                  SizedBox(height: 3),
                   makeStatusLine("출발확정", goPackage),
-                  Spacer(),
-                  Divider(height: 16, color: mediumGray),
+                  SizedBox(height: 8),
+                  Divider(height: 8, color: mediumGray, thickness: 1.2),
+                  SizedBox(height: 3),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("총 패키지", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: primaryColor)),
-                      Text("$allPackage개", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: primaryColor)),
+                      Text("총 패키지", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: darkText)),
+                      Text("$allPackage개", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: darkText)),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            height: 40,
+            height: 44,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => TravelPackageMain()));
@@ -352,9 +414,11 @@ class _DashboardState extends State<Dashboard> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: secondaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation: 4,
+                shadowColor: secondaryColor.withOpacity(0.3),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text('패키지관리'),
+              child: Text('패키지관리', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -362,45 +426,75 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  // --- 문의 메뉴 만들기 ---
+  // --- 문의 메뉴 만들기 (overflow 완전 해결) ---
   Widget makeInquiryMenu() {
     return Container(
-      height: 320,
+      height: 300,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: mediumGray),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: mediumGray, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            spreadRadius: 3,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("문의", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
-          SizedBox(height: 16),
+          Text("문의", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkText)),
+          SizedBox(height: 8),
           Expanded(
             child: Container(
               width: double.infinity,
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: lightGray,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(
-                child: Text("문의 현황 (구현 예정)", style: TextStyle(color: Colors.grey.shade600)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("문의 현황", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: darkText)),
+                  SizedBox(height: 8),
+                  makeStatusLine("대기중", waitingInquiry),
+                  SizedBox(height: 3),
+                  makeStatusLine("답변완료", completeInquiry),
+                  SizedBox(height: 8),
+                  Divider(height: 8, color: mediumGray, thickness: 1.2),
+                  SizedBox(height: 3),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("총 문의", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: darkText)),
+                      Text("$allInquiry개", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: darkText)),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            height: 40,
+            height: 44,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => InquiryMain()));
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
+                backgroundColor: tertiaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation: 4,
+                shadowColor: tertiaryColor.withOpacity(0.3),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text('문의'),
+              child: Text('문의', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -415,32 +509,16 @@ class _DashboardState extends State<Dashboard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: secondaryColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 8),
-              Text(label, style: TextStyle(fontSize: 13)),
-            ],
-          ),
-          Text("${count}개", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(label, style: TextStyle(fontSize: 13, color: darkText)),
+          Text("${count}개", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: darkText)),
         ],
       ),
     );
   }
 
-  // ------ 일반 함수들 ------
-
   // --- 숫자에 콤마 넣는 함수 ---
   String addComma(int number) {
     if (number == 0) return '0';
-    
     String numText = number.toString();
     String result = '';
     int digitCount = 0;
@@ -452,7 +530,6 @@ class _DashboardState extends State<Dashboard> {
       result = numText[i] + result;
       digitCount++;
     }
-    
     return result;
   }
 
@@ -472,7 +549,6 @@ class _DashboardState extends State<Dashboard> {
         final packageData = currentPackageDoc.data();
         
         String packageState = '';
-        
         if (packageData['pState'] != null) {
           packageState = packageData['pState'].toString();
         }
@@ -493,6 +569,42 @@ class _DashboardState extends State<Dashboard> {
       openPackage = 0;
       closePackage = 0;
       goPackage = 0;
+      setState(() {});
+    }
+  }
+
+  // --- 문의 데이터 가져오기 ---
+  Future<void> getInquiryData() async {
+    try {
+      final firebaseResponse = await FirebaseFirestore.instance.collection('inquery').get();
+      final allInquiryDocs = firebaseResponse.docs;
+      
+      allInquiry = allInquiryDocs.length;
+      waitingInquiry = 0;
+      completeInquiry = 0;
+      
+      for (int docIndex = 0; docIndex < allInquiryDocs.length; docIndex++) {
+        final currentInquiryDoc = allInquiryDocs[docIndex];
+        final inquiryData = currentInquiryDoc.data();
+        
+        String inquiryState = '';
+        if (inquiryData['state'] != null) {
+          inquiryState = inquiryData['state'].toString();
+        }
+        
+        if (inquiryState == '대기중') {
+          waitingInquiry = waitingInquiry + 1;
+        } else if (inquiryState == '답변완료') {
+          completeInquiry = completeInquiry + 1;
+        }
+      }
+      
+      setState(() {});
+      
+    } catch (error) {
+      allInquiry = 0;
+      waitingInquiry = 0;
+      completeInquiry = 0;
       setState(() {});
     }
   }
@@ -573,5 +685,4 @@ class _DashboardState extends State<Dashboard> {
       setState(() {});
     }
   }
-
 }

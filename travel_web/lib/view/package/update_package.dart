@@ -15,6 +15,14 @@ class UpdatePackage extends StatefulWidget {
 }
 
 class _UpdatePackageState extends State<UpdatePackage> {
+  // --- Dashboard와 동일한 색상 팔레트 추가 ---
+  final Color primaryColor = Color(0xFF2C5AA0);      // 진한 파란색
+  final Color secondaryColor = Color(0xFF5B8A2A);    // 진한 초록색
+  final Color tertiaryColor = Color(0xFFE67E22);     // 진한 주황색
+  final Color lightGray = Color(0xFFF8F9FA);         // 밝은 배경
+  final Color mediumGray = Color(0xFFDEE2E6);        // 진한 경계선
+  final Color darkText = Color(0xFF2C3E50);          // 진한 텍스트
+
   late TextEditingController packageName;
   late TextEditingController agencyName;
   late TextEditingController airlineCode;
@@ -78,7 +86,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             Container(
               width: 32,
               height: 32,
-              decoration: BoxDecoration(color: Colors.blue[600], borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(6)), // 색상 변경
               child: Icon(Icons.flight_takeoff, color: Colors.white, size: 20),
             ),
             SizedBox(width: 12),
@@ -86,7 +94,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
           ],
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: darkText, // 색상 변경
         elevation: 0,
       ),
       body: Container(
@@ -96,7 +104,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('여행 패키지 수정', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              Text('여행 패키지 수정', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: darkText)), // 색상 변경
               SizedBox(height: 8),
               Text('패키지 정보를 수정하고 저장하세요. 새 이미지 선택 시 기존 이미지가 완전히 교체됩니다.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
               SizedBox(height: 40),
@@ -160,13 +168,13 @@ class _UpdatePackageState extends State<UpdatePackage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('패키지 이미지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('패키지 이미지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkText)), // 색상 변경
                           SizedBox(height: 24),
                           imageUploadBtn(),
                           SizedBox(height: 20),
                           imageGrid(),
                           SizedBox(height: 16),
-                          Text('최소 $minCount장 이미지 필요', style: TextStyle(fontSize: 12, color: Colors.blue[600])),
+                          Text('최소 $minCount장 이미지 필요', style: TextStyle(fontSize: 12, color: primaryColor)), // 색상 변경
                         ],
                       ),
                     ),
@@ -179,7 +187,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
                 child: ElevatedButton(
                   onPressed: isUploading ? null : updateAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
+                    backgroundColor: primaryColor, // 색상 변경
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -207,7 +215,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         TextField(
           controller: ctrl,
@@ -216,7 +224,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.blue[600]!, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryColor, width: 2)), // 색상 변경
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             fillColor: Colors.white,
             filled: true,
@@ -230,7 +238,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         TextField(
           controller: ctrl,
@@ -239,7 +247,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.blue[600]!, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryColor, width: 2)), // 색상 변경
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             fillColor: Colors.white,
             filled: true,
@@ -260,7 +268,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('패키지 상태', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text('패키지 상태', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -282,7 +290,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
       height: 120,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: newImages.isNotEmpty ? Colors.orange[300]! : Colors.grey[300]!, width: newImages.isNotEmpty ? 2 : 1),
+        border: Border.all(color: newImages.isNotEmpty ? tertiaryColor.withOpacity(0.7) : Colors.grey[300]!, width: newImages.isNotEmpty ? 2 : 1), // 색상 변경
         color: Colors.white,
       ),
       child: InkWell(
@@ -294,12 +302,12 @@ class _UpdatePackageState extends State<UpdatePackage> {
             Icon(
               newImages.isNotEmpty ? Icons.swap_horiz : Icons.cloud_upload_outlined,
               size: 32,
-              color: isUploading ? Colors.grey[400] : (newImages.isNotEmpty ? Colors.orange[600] : Colors.blue[600]),
+              color: isUploading ? Colors.grey[400] : (newImages.isNotEmpty ? tertiaryColor : primaryColor), // 색상 변경
             ),
             SizedBox(height: 8),
             Text(
               newImages.isNotEmpty ? '새 이미지 ${newImages.length}개 선택됨' : '클릭하여 새 이미지 업로드',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isUploading ? Colors.grey[400] : Colors.grey[700]),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isUploading ? Colors.grey[400] : darkText), // 색상 변경
               textAlign: TextAlign.center,
             ),
           ],
@@ -344,12 +352,12 @@ class _UpdatePackageState extends State<UpdatePackage> {
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
-              loadingBuilder: (c, child, loading) => loading == null ? child : Container(color: Colors.blue[100], child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+              loadingBuilder: (c, child, loading) => loading == null ? child : Container(color: primaryColor.withOpacity(0.1), child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor))), // 색상 변경
               errorBuilder: (_, __, ___) => Container(
-                color: Colors.orange[200],
+                color: tertiaryColor.withOpacity(0.2), // 색상 변경
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.wifi_off, color: Colors.orange, size: 20), Text('CORS\n오류', style: TextStyle(fontSize: 8, color: Colors.orange), textAlign: TextAlign.center)],
+                  children: [Icon(Icons.wifi_off, color: tertiaryColor, size: 20), Text('CORS\n오류', style: TextStyle(fontSize: 8, color: tertiaryColor), textAlign: TextAlign.center)], // 색상 변경
                 ),
               ),
             ),
@@ -364,13 +372,13 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Stack(
       children: [
         Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey[200], border: Border.all(color: Colors.orange[400]!, width: 2)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey[200], border: Border.all(color: tertiaryColor, width: 2)), // 색상 변경
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: kIsWeb
                 ? FutureBuilder<List<int>>(
                     future: image.readAsBytes(),
-                    builder: (_, snap) => snap.hasData ? Image.memory(Uint8List.fromList(snap.data!), fit: BoxFit.cover, width: double.infinity, height: double.infinity) : Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    builder: (_, snap) => snap.hasData ? Image.memory(Uint8List.fromList(snap.data!), fit: BoxFit.cover, width: double.infinity, height: double.infinity) : Center(child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor)), // 색상 변경
                   )
                 : Image.file(File(image.path), fit: BoxFit.cover, width: double.infinity, height: double.infinity),
           ),
@@ -380,7 +388,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
           left: 6,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            decoration: BoxDecoration(color: Colors.orange[600], borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: tertiaryColor, borderRadius: BorderRadius.circular(6)), // 색상 변경
             child: Text('NEW', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
           ),
         ),
@@ -423,7 +431,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
           newImages.clear();
           newImages.addAll(picked.take(maxCount));
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 새 이미지 선택됨'), backgroundColor: Colors.orange[600]));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 새 이미지 선택됨'), backgroundColor: tertiaryColor)); // 색상 변경
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택 오류'), backgroundColor: Colors.red[600]));
@@ -460,7 +468,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
       if (newImages.isNotEmpty) {
         await deleteOldImages();
         finalImageUrls = await uploadNewImages();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지가 성공적으로 교체되었습니다'), backgroundColor: Colors.green[600]));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지가 성공적으로 교체되었습니다'), backgroundColor: secondaryColor)); // 색상 변경
       } else {
         finalImageUrls = savedImageUrls;
       }
@@ -486,7 +494,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
         barrierDismissible: false,
         builder: (_) => AlertDialog(
           title: Row(
-            children: [Icon(Icons.check_circle, color: Colors.green[600]), SizedBox(width: 8), Text('수정 완료')],
+            children: [Icon(Icons.check_circle, color: secondaryColor), SizedBox(width: 8), Text('수정 완료')], // 색상 변경
           ),
           content: Text(newImages.isNotEmpty ? '패키지 수정 및 이미지 교체가 완료되었습니다.' : '패키지 정보가 수정되었습니다.'),
           actions: [
@@ -495,7 +503,7 @@ class _UpdatePackageState extends State<UpdatePackage> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Text('확인', style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.bold)),
+              child: Text('확인', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)), // 색상 변경
             ),
           ],
         ),

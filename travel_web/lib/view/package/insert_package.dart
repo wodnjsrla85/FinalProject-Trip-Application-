@@ -14,6 +14,14 @@ class InsertPackage extends StatefulWidget {
 }
 
 class _InsertPackageState extends State<InsertPackage> {
+  // --- Dashboard와 동일한 색상 팔레트 추가 ---
+  final Color primaryColor = Color(0xFF2C5AA0);      // 진한 파란색
+  final Color secondaryColor = Color(0xFF5B8A2A);    // 진한 초록색
+  final Color tertiaryColor = Color(0xFFE67E22);     // 진한 주황색
+  final Color lightGray = Color(0xFFF8F9FA);         // 밝은 배경
+  final Color mediumGray = Color(0xFFDEE2E6);        // 진한 경계선
+  final Color darkText = Color(0xFF2C3E50);          // 진한 텍스트
+
   TextEditingController packageName = TextEditingController();
   TextEditingController agencyName = TextEditingController();
   TextEditingController airlineCode = TextEditingController();
@@ -58,7 +66,7 @@ class _InsertPackageState extends State<InsertPackage> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.blue[600],
+                color: primaryColor, // 색상 변경
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(Icons.flight_takeoff, color: Colors.white, size: 20),
@@ -68,7 +76,7 @@ class _InsertPackageState extends State<InsertPackage> {
           ],
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: darkText, // 색상 변경
         elevation: 0,
       ),
       body: Container(
@@ -78,7 +86,7 @@ class _InsertPackageState extends State<InsertPackage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('새로운 여행 패키지 추가', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              Text('새로운 여행 패키지 추가', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: darkText)), // 색상 변경
               SizedBox(height: 8),
               Text('새로운 여행 패키지를 생성하기 위해 아래 세부정보를 입력하세요.', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
               SizedBox(height: 40),
@@ -142,13 +150,13 @@ class _InsertPackageState extends State<InsertPackage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('패키지 이미지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('패키지 이미지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkText)), // 색상 변경
                           SizedBox(height: 24),
                           buildImageUploadButton(),
                           SizedBox(height: 20),
                           buildImageGrid(),
                           SizedBox(height: 16),
-                          Text('최소 ${minImages}장 이미지 업로드', style: TextStyle(fontSize: 12, color: Colors.blue[600])),
+                          Text('최소 ${minImages}장 이미지 업로드', style: TextStyle(fontSize: 12, color: primaryColor)), // 색상 변경
                         ],
                       ),
                     ),
@@ -161,7 +169,7 @@ class _InsertPackageState extends State<InsertPackage> {
                 child: ElevatedButton(
                   onPressed: isUploading ? null : insertAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
+                    backgroundColor: primaryColor, // 색상 변경
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -189,7 +197,7 @@ class _InsertPackageState extends State<InsertPackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -198,7 +206,7 @@ class _InsertPackageState extends State<InsertPackage> {
             hintText: placeholder,
             hintStyle: TextStyle(color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.blue[600]!, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryColor, width: 2)), // 색상 변경
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             fillColor: Colors.white,
             filled: true,
@@ -212,7 +220,7 @@ class _InsertPackageState extends State<InsertPackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -221,7 +229,7 @@ class _InsertPackageState extends State<InsertPackage> {
             hintText: placeholder,
             hintStyle: TextStyle(color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.blue[600]!, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryColor, width: 2)), // 색상 변경
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             fillColor: Colors.white,
             filled: true,
@@ -242,7 +250,7 @@ class _InsertPackageState extends State<InsertPackage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('패키지 상태', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700])),
+        Text('패키지 상태', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: darkText)), // 색상 변경
         SizedBox(height: 8),
         Container(
           width: double.infinity,
@@ -283,9 +291,9 @@ class _InsertPackageState extends State<InsertPackage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_upload_outlined, size: 32, color: isUploading ? Colors.grey[400] : Colors.blue[600]),
+            Icon(Icons.cloud_upload_outlined, size: 32, color: isUploading ? Colors.grey[400] : primaryColor), // 색상 변경
             SizedBox(height: 8),
-            Text('클릭하여 업로드', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isUploading ? Colors.grey[400] : Colors.grey[700])),
+            Text('클릭하여 업로드', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isUploading ? Colors.grey[400] : darkText)), // 색상 변경
           ],
         ),
       ),
@@ -362,7 +370,7 @@ class _InsertPackageState extends State<InsertPackage> {
           selectedImages.clear();
           selectedImages.addAll(pickedImages.take(maxImages));
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${selectedImages.length}개 이미지가 선택되었습니다.'), backgroundColor: Colors.green[600]));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${selectedImages.length}개 이미지가 선택되었습니다.'), backgroundColor: secondaryColor)); // 색상 변경
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택 중 오류가 발생했습니다.'), backgroundColor: Colors.red[600]));
@@ -484,7 +492,7 @@ class _InsertPackageState extends State<InsertPackage> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text('확인', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[600])),
+            child: Text('확인', style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor)), // 색상 변경
           ),
         ],
       ),
