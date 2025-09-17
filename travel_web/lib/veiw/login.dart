@@ -7,7 +7,7 @@ import 'package:travel_web/veiw/register.dart';
 final db = FirebaseFirestore.instance;
 
 class LoginPage extends StatefulWidget {
-   const LoginPage({super.key});
+ const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();

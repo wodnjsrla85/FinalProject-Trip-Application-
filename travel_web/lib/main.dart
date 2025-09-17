@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_web/firebase_options.dart';
-import 'package:travel_web/veiw/loginpage.dart';
+import 'package:travel_web/veiw/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {

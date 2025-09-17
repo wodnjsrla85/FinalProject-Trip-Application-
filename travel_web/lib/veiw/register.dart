@@ -73,7 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  Future<bool> addUser(String email, String password) async {
+  Future<bool> addmanagers(String email, String password) async {
     try {
       final id = email.trim().toLowerCase();
       final docRef = db.collection('managers').doc(id);
@@ -138,7 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Card(
                   color: Colors.white, // 로그인과 동일(화이트)
                   elevation: 8,
-                  shadowColor: Colors.black.withOpacity(0.08),
+                  shadowColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -312,7 +312,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               onPressed: (!(_formKey.currentState?.validate() ?? false) || !_idAvailable)
                                   ? null
                                   : () async {
-                                      final ok = await addUser(_id.text, _pw.text);
+                                      final ok = await addmanagers(_id.text, _pw.text);
                                       if (ok) {
                                         Get.snackbar('회원가입 완료', '축하드립니다.');
                                         Get.back();
