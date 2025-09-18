@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, empty_catches
+
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:flutter/material.dart';
@@ -426,14 +428,12 @@ class _UpdatePackageState extends State<UpdatePackage> {
   Future<void> pickImages() async {
     try {
       final picked = await picker.pickMultiImage();
-      if (picked != null) {
-        setState(() {
-          newImages.clear();
-          newImages.addAll(picked.take(maxCount));
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 새 이미지 선택됨'), backgroundColor: tertiaryColor)); // 색상 변경
-      }
-    } catch (e) {
+      setState(() {
+        newImages.clear();
+        newImages.addAll(picked.take(maxCount));
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newImages.length}개 새 이미지 선택됨'), backgroundColor: tertiaryColor)); // 색상 변경
+        } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택 오류'), backgroundColor: Colors.red[600]));
     }
   }
