@@ -18,7 +18,7 @@ class AirplaneStartRepository {
 
   /// 출발지(origin), 상태=운행 고정. 목적지/직항 필터 옵션.
   Query<AirplaneStart> baseQuery({
-    String origin = 'ICN',
+    String? origin,
     String? dest,
     bool? directOnly, // true 면 직항여부=1, null이면 무시
   }) {

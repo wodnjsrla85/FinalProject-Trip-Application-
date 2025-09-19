@@ -30,7 +30,8 @@ const Set<String> kNonstopFromICN = {
   "WUH","ORD","PRG","HPH","KOJ","HEL","IAD","LAS","MEX","MSP","SLC","DTW","EWR","TAE","BOS","BNE","MUC",
   "YYC","DYG","ADD","DEL","WAW","ZRH","HFE","SHI","ISG","SDJ","YGJ","RGN","SJW","MAD","AKJ","OKJ","HKD",
   "VIE","YUL","DMK","AKL","HAK","MXP","HSG","BUD","KMQ","LIS","KMI","NQZ","KIJ","WNZ","TKS","BWN","NGS",
-  "AOJ","OIT","FRU","ZAG","DSN","YNZ","SYX","BTH","KTM","CIT","YTY","CMB","JMU","WRO","ASB","UBJ","HET","TFU"
+  "AOJ","OIT","FRU","ZAG","DSN","YNZ","SYX","BTH","KTM","CIT","YTY","CMB","JMU","WRO","ASB","UBJ","HET","TFU",
+  "ICN", "GMP", "CJU"
 };
 
 const Map<String, Map<String, Map<String, int>>> kFareTable = {

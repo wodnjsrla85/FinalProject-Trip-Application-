@@ -1,3 +1,4 @@
+// lib/ui/pages/edit/airplane_end_edit_page.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../data/airplane_end_repository.dart';
@@ -15,11 +16,12 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
   final _repo = AirplaneEndRepository();
   final _formKey = GlobalKey<FormState>();
 
+  // 컨트롤러
   final _flightNo = TextEditingController();
   final _airline = TextEditingController();
   final _aircraft = TextEditingController();
-  final _origin = TextEditingController();
-  final _destination = TextEditingController(text: 'ICN');
+  final _origin = TextEditingController();                // 입력/자동완성
+  final _destination = TextEditingController(text: 'ICN'); // 고정
   final _terminal = TextEditingController(text: 'T1');
   final _totalSeats = TextEditingController();
 
@@ -29,6 +31,15 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
 
   bool loading = true;
   bool saving = false;
+
+  // 운항 상태 드롭다운 (End도 Start와 동일한 옵션 유지)
+  final List<String> _statusOptionsBase = const [
+    '운행',
+    '운행중단',
+    '임시중단',
+  ];
+  late List<String> _statusOptions; // 문서의 상태가 목록에 없으면 포함하기 위해 가변
+  String _status = '운행';
 
   // ===== 자동완성 후보(IATA) =====
   List<String> get _iataOptions {
@@ -40,6 +51,7 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
   @override
   void initState() {
     super.initState();
+    _statusOptions = List.of(_statusOptionsBase);
     _load();
   }
 
@@ -59,13 +71,16 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
     try {
       final a = await _repo.fetchById(widget.docId);
       if (a == null) {
-        setState(()=>loading=false);
+        setState(() => loading = false);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('문서를 찾을 수 없습니다.')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('문서를 찾을 수 없습니다.')),
+          );
           Navigator.pop(context);
         }
         return;
       }
+
       _flightNo.text = a.flightNo;
       _airline.text = a.airline;
       _aircraft.text = a.aircraft;
@@ -74,26 +89,60 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
       _terminal.text = a.terminal;
       _totalSeats.text = a.totalSeats.toString();
 
-      try { final p=a.flightDate.split('-'); _flightDate=DateTime(int.parse(p[0]),int.parse(p[1]),int.parse(p[2])); } catch(_){}
-      try { final t=a.departureTime.split(':'); _depTime=TimeOfDay(hour:int.parse(t[0]),minute:int.parse(t[1])); } catch(_){}
+      // 상태 세팅 + 옵션 보강
+      _status = (a.status.isEmpty) ? '운행' : a.status;
+      if (!_statusOptions.contains(_status)) {
+        _statusOptions.insert(0, _status);
+      }
+
+      try {
+        final p = a.flightDate.split('-');
+        _flightDate = DateTime(
+          int.parse(p[0]),
+          int.parse(p[1]),
+          int.parse(p[2]),
+        );
+      } catch (_) {}
+
+      try {
+        final t = a.departureTime.split(':');
+        _depTime = TimeOfDay(
+          hour: int.parse(t[0]),
+          minute: int.parse(t[1]),
+        );
+      } catch (_) {}
 
       _recomputeArrival();
-      setState(()=>loading=false);
+      setState(() => loading = false);
     } catch (e) {
-      setState(()=>loading=false);
+      setState(() => loading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('로드 실패: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로드 실패: $e')),
+        );
         Navigator.pop(context);
       }
     }
   }
 
   void _recomputeArrival() {
-    if (_flightDate == null || _depTime == null) { _arrivalDateTime = null; return; }
+    if (_flightDate == null || _depTime == null) {
+      _arrivalDateTime = null;
+      return;
+    }
     final ori = _origin.text.trim().toUpperCase();
     final minutes = kFlightTimes[ori];
-    if (minutes == null) { _arrivalDateTime = null; return; }
-    final dep = DateTime(_flightDate!.year, _flightDate!.month, _flightDate!.day, _depTime!.hour, _depTime!.minute);
+    if (minutes == null) {
+      _arrivalDateTime = null;
+      return;
+    }
+    final dep = DateTime(
+      _flightDate!.year,
+      _flightDate!.month,
+      _flightDate!.day,
+      _depTime!.hour,
+      _depTime!.minute,
+    );
     _arrivalDateTime = dep.add(Duration(minutes: minutes));
   }
 
@@ -104,7 +153,10 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
-      context: context, initialDate: _flightDate ?? DateTime.now(), firstDate: DateTime(2020), lastDate: DateTime(2035),
+      context: context,
+      initialDate: _flightDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
     );
     if (picked != null) {
       setState(() => _flightDate = picked);
@@ -113,7 +165,10 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
   }
 
   Future<void> _pickTime() async {
-    final picked = await showTimePicker(context: context, initialTime: _depTime ?? const TimeOfDay(hour: 9, minute: 0));
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _depTime ?? const TimeOfDay(hour: 9, minute: 0),
+    );
     if (picked != null) {
       setState(() => _depTime = picked);
       _recomputeArrival();
@@ -123,17 +178,24 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_flightDate == null || _depTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('출발 날짜/시간을 선택하세요.'))); return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('출발 날짜/시간을 선택하세요.')),
+      );
+      return;
     }
     _recomputeArrival();
     if (_arrivalDateTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('도착 시간 계산 실패'))); return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('도착 시간 계산 실패')),
+      );
+      return;
     }
 
     final ori = _origin.text.trim().toUpperCase();
     final mins = kFlightTimes[ori]!;
     final depStrDate = fmtDate(_flightDate!);
-    final depStrTime = '${_depTime!.hour.toString().padLeft(2,'0')}:${_depTime!.minute.toString().padLeft(2,'0')}';
+    final depStrTime =
+        '${_depTime!.hour.toString().padLeft(2, '0')}:${_depTime!.minute.toString().padLeft(2, '0')}';
     final arrStrDate = fmtDate(_arrivalDateTime!);
     final arrStrTime = fmtTimeHM(_arrivalDateTime!);
 
@@ -142,16 +204,16 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
     final directTxt = isDirect ? '직항' : '경유';
     final distanceGroup = classifyDistance(mins);
 
-    final offEco   = fareOf(distanceGroup, "비수기", "이코노미");
-    final offPrem  = fareOf(distanceGroup, "비수기", "프리미엄이코노미");
-    final offBiz   = fareOf(distanceGroup, "비수기", "비즈니스");
+    final offEco = fareOf(distanceGroup, "비수기", "이코노미");
+    final offPrem = fareOf(distanceGroup, "비수기", "프리미엄이코노미");
+    final offBiz = fareOf(distanceGroup, "비수기", "비즈니스");
     final offFirst = fareOf(distanceGroup, "비수기", "퍼스트");
-    final peakEco  = fareOf(distanceGroup, "성수기", "이코노미");
+    final peakEco = fareOf(distanceGroup, "성수기", "이코노미");
     final peakPrem = fareOf(distanceGroup, "성수기", "프리미엄이코노미");
-    final peakBiz  = fareOf(distanceGroup, "성수기", "비즈니스");
-    final peakFirst= fareOf(distanceGroup, "성수기", "퍼스트");
+    final peakBiz = fareOf(distanceGroup, "성수기", "비즈니스");
+    final peakFirst = fareOf(distanceGroup, "성수기", "퍼스트");
 
-    setState(()=>saving=true);
+    setState(() => saving = true);
     try {
       final data = <String, dynamic>{
         "운항편명": _flightNo.text.trim(),
@@ -159,11 +221,11 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
         "출발시간": depStrTime,
         "출발지": ori,
         "터미널": _terminal.text.trim(),
-        "목적지": _destination.text.trim(), // ICN (고정이더라도 저장)
+        "목적지": _destination.text.trim(), // ICN (읽기전용이지만 명시 저장)
         "예상 소요 시간": mins,
         "직항여부": directInt,
         "직항/경유": directTxt,
-        "상태": "운행",
+        "상태": _status, // ✅ 드롭다운 값 반영
         "기종": _aircraft.text.trim(),
         "총좌석": int.tryParse(_totalSeats.text.trim()) ?? 0,
         "운항일자": depStrDate,
@@ -185,12 +247,14 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
       await FirebaseFirestore.instance
           .collection('airplane_end')
           .doc(widget.docId)
-          .set(data); // ✅ update() 대신 set()
+          .set(data); // 전체 스키마 정합성 유지
       if (!mounted) return;
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 실패: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('수정 실패: $e')),
+      );
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -198,10 +262,14 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-    final arrivalDateStr = _arrivalDateTime == null ? '' : fmtDate(_arrivalDateTime!);
-    final arrivalTimeStr = _arrivalDateTime == null ? '' : fmtTimeHM(_arrivalDateTime!);
+    final arrivalDateStr =
+        _arrivalDateTime == null ? '' : fmtDate(_arrivalDateTime!);
+    final arrivalTimeStr =
+        _arrivalDateTime == null ? '' : fmtTimeHM(_arrivalDateTime!);
 
     return Scaffold(
       appBar: AppBar(
@@ -210,7 +278,11 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
           TextButton(
             onPressed: saving ? null : _save,
             child: saving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Text('저장'),
           ),
         ],
@@ -223,34 +295,57 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(controller: _flightNo, decoration: const InputDecoration(labelText: '운항편명'), validator: (v)=> (v==null||v.trim().isEmpty)?'필수 입력':null,),
-                TextFormField(controller: _airline, decoration: const InputDecoration(labelText: '항공사'), validator: (v)=> (v==null||v.trim().isEmpty)?'필수 입력':null,),
-                TextFormField(controller: _aircraft, decoration: const InputDecoration(labelText: '기종')),
+                // 기본 정보
+                TextFormField(
+                  controller: _flightNo,
+                  decoration: const InputDecoration(labelText: '운항편명'),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '필수 입력' : null,
+                ),
+                TextFormField(
+                  controller: _airline,
+                  decoration: const InputDecoration(labelText: '항공사'),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '필수 입력' : null,
+                ),
+                TextFormField(
+                  controller: _aircraft,
+                  decoration: const InputDecoration(labelText: '기종'),
+                ),
                 const SizedBox(height: 12),
 
+                // 출/도착/터미널
                 Row(
                   children: [
-                    // 출발지: 자동완성 (여기가 핵심 변경)
+                    // 출발지 자동완성
                     Expanded(
                       child: Autocomplete<String>(
                         optionsBuilder: (TextEditingValue v) {
                           final q = v.text.trim().toUpperCase();
-                          if (q.isEmpty) return const Iterable<String>.empty();
+                          if (q.isEmpty) {
+                            return const Iterable<String>.empty();
+                          }
                           return _iataOptions.where((opt) => opt.startsWith(q));
                         },
-                        fieldViewBuilder: (context, textController, focusNode, _) {
-                          // 최초 1회만 초기 동기화
-                          if (textController.text.isEmpty && _origin.text.isNotEmpty) {
+                        fieldViewBuilder:
+                            (context, textController, focusNode, _) {
+                          // 최초 1회 초기 동기화
+                          if (textController.text.isEmpty &&
+                              _origin.text.isNotEmpty) {
                             textController.text = _origin.text;
-                            textController.selection = TextSelection.fromPosition(
-                              TextPosition(offset: textController.text.length),
+                            textController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                  offset: textController.text.length),
                             );
                           }
                           return TextFormField(
                             controller: textController,
                             focusNode: focusNode,
-                            textCapitalization: TextCapitalization.characters,
-                            decoration: const InputDecoration(labelText: '출발지 (IATA)'),
+                            textCapitalization:
+                                TextCapitalization.characters,
+                            decoration: const InputDecoration(
+                                labelText: '출발지 (IATA)'),
                             onChanged: (v) {
                               _origin.text = v.toUpperCase();
                               _recomputeArrival();
@@ -259,7 +354,9 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
                             validator: (v) {
                               final code = (v ?? '').trim().toUpperCase();
                               if (code.isEmpty) return '필수 입력';
-                              if (!_iataOptions.contains(code)) return '알 수 없는 IATA 코드';
+                              if (!_iataOptions.contains(code)) {
+                                return '알 수 없는 IATA 코드';
+                              }
                               return null;
                             },
                           );
@@ -272,32 +369,46 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // 목적지: 읽기 전용 (ICN)
+                    // 목적지(ICN) 읽기전용
                     Expanded(
                       child: TextFormField(
                         controller: _destination,
                         readOnly: true,
                         enabled: false,
-                        decoration: const InputDecoration(labelText: '목적지 (ICN)'),
+                        decoration:
+                            const InputDecoration(labelText: '목적지 (ICN)'),
                       ),
                     ),
                   ],
                 ),
 
-                TextFormField(controller: _terminal, decoration: const InputDecoration(labelText: '터미널')),
+                TextFormField(
+                  controller: _terminal,
+                  decoration:
+                      const InputDecoration(labelText: '터미널 (예: T1, T2)'),
+                ),
                 const SizedBox(height: 12),
 
-                TextFormField(controller: _totalSeats, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '총좌석')),
+                // 좌석
+                TextFormField(
+                  controller: _totalSeats,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: '총좌석'),
+                ),
                 const SizedBox(height: 12),
 
+                // 날짜/시간
                 Row(
                   children: [
                     Expanded(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: const Text('운항일자'),
-                        subtitle: Text(_flightDate == null ? '' : fmtDate(_flightDate!)),
-                        trailing: TextButton(onPressed: _pickDate, child: const Text('선택')),
+                        subtitle: Text(_flightDate == null
+                            ? ''
+                            : fmtDate(_flightDate!)),
+                        trailing: TextButton(
+                            onPressed: _pickDate, child: const Text('선택')),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -305,29 +416,66 @@ class _AirplaneEndEditPageState extends State<AirplaneEndEditPage> {
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: const Text('출발시간'),
-                        subtitle: Text(_depTime == null ? '' : '${_depTime!.hour.toString().padLeft(2,'0')}:${_depTime!.minute.toString().padLeft(2,'0')}'),
-                        trailing: TextButton(onPressed: _pickTime, child: const Text('선택')),
+                        subtitle: Text(_depTime == null
+                            ? ''
+                            : '${_depTime!.hour.toString().padLeft(2, '0')}:${_depTime!.minute.toString().padLeft(2, '0')}'),
+                        trailing: TextButton(
+                            onPressed: _pickTime, child: const Text('선택')),
                       ),
                     ),
                   ],
                 ),
 
+                // 자동 계산 결과
                 Row(
                   children: [
-                    Expanded(child: ListTile(contentPadding: EdgeInsets.zero, title: const Text('예상 도착일자(자동)'), subtitle: Text(arrivalDateStr))),
+                    Expanded(
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('예상 도착일자(자동)'),
+                        subtitle: Text(arrivalDateStr),
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    Expanded(child: ListTile(contentPadding: EdgeInsets.zero, title: const Text('예상 도착시간(자동)'), subtitle: Text(arrivalTimeStr))),
+                    Expanded(
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('예상 도착시간(자동)'),
+                        subtitle: Text(arrivalTimeStr),
+                      ),
+                    ),
                   ],
                 ),
 
+                // 직항/경유
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 24),
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8),
                     child: Text('항로: ${_isDirect ? "직항" : "경유"}'),
                   ),
                 ),
 
+                // ✅ 운항 상태 드롭다운
+                DropdownButtonFormField<String>(
+                  value: _status,
+                  decoration: const InputDecoration(
+                    labelText: '운항 상태',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _statusOptions
+                      .map(
+                        (s) =>
+                            DropdownMenuItem<String>(value: s, child: Text(s)),
+                      )
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _status = v);
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // 저장
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(

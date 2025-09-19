@@ -18,7 +18,7 @@ class AirplaneEndRepository {
 
   /// 도착지(destination = 기본 ICN), 출발지(origin) 선택, 직항 필터.
   Query<AirplaneEnd> baseQuery({
-    String destination = 'ICN',
+    String? destination,
     String? origin,
     bool? directOnly,
   }) {

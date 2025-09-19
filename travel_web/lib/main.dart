@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:travel_web/ui/dashboard/main_dashboard_page.dart';
 import 'firebase_options.dart';
 
-// 대시보드 페이지 임포트
-import 'ui/pages/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Airplane Dashboard',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: const DashboardPage(),
+      home: MainDashboardPage(),
       debugShowCheckedModeBanner: false,
     );
   }
