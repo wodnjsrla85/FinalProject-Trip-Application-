@@ -52,6 +52,9 @@ dependencies:
   # 차트
   syncfusion_flutter_charts: ^28.1.33
 
+  # 형식 부분
+  intl: ^0.19.0
+
 
 dev_dependencies:
   flutter_test:
