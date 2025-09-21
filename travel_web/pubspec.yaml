@@ -50,6 +50,9 @@ dependencies:
   video_player: ^2.8.6
   firebase_cached_image: ^0.9.0
 
+  # 시각화 그래프
+  syncfusion_flutter_charts: ^27.1.48
+
 
 dev_dependencies:
   flutter_test:
