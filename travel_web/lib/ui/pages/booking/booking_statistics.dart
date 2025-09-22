@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
 /// 예매 통계 페이지 (연동판)
 /// - 탭: 개요(실데이터) / 노선별(실데이터) / 좌석등급(시간대 수요)
 /// - 모든 쿼리: booking.bDate 단일 필드 범위 + orderBy('bDate') (복합 인덱스 불필요)
@@ -495,7 +494,7 @@ class _BookingStatsPageState extends State<BookingStatsPage>
   // ── UI ─────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final monthLabel = '${_year}.${_month.toString().padLeft(2, '0')}';
+    final monthLabel = '$_year.${_month.toString().padLeft(2, '0')}';
 
     return Scaffold(
       appBar: AppBar(
@@ -1058,7 +1057,7 @@ class _CabinSeatClassTab extends StatelessWidget {
       ),
     ];
 
-    Widget _smallMultiple(String title, List<_HourPoint> ds) {
+    Widget smallMultiple(String title, List<_HourPoint> ds) {
       return Card(
         elevation: 0,
         clipBehavior: Clip.antiAlias,
@@ -1134,10 +1133,10 @@ class _CabinSeatClassTab extends StatelessWidget {
             mainAxisSpacing: 12,
             childAspectRatio: 1.1,
             children: [
-              _smallMultiple('퍼스트(F)', fSeries),
-              _smallMultiple('비즈니스(B)', bSeries),
-              _smallMultiple('프리미엄이코노미(P)', pSeries),
-              _smallMultiple('이코노미(E)', eSeries),
+              smallMultiple('퍼스트(F)', fSeries),
+              smallMultiple('비즈니스(B)', bSeries),
+              smallMultiple('프리미엄이코노미(P)', pSeries),
+              smallMultiple('이코노미(E)', eSeries),
             ],
           ),
         ],
