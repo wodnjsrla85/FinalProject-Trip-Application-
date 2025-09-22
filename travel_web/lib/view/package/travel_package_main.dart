@@ -13,14 +13,14 @@ class TravelPackageMain extends StatefulWidget {
 
 class _TravelMainState extends State<TravelPackageMain> {
   // --- Dashboard와 동일한 색상 팔레트 ---
-  final Color primaryColor = Color(0xFF2C5AA0);
-  final Color secondaryColor = Color(0xFF5B8A2A);
-  final Color tertiaryColor = Color(0xFFE67E22);
-  final Color lightGray = Color(0xFFF8F9FA);
-  final Color mediumGray = Color(0xFFDEE2E6);
-  final Color darkText = Color(0xFF2C3E50);
+  final Color primaryColor = Color(0xFF2C5AA0);      // 진한 파란색
+  final Color secondaryColor = Color(0xFF5B8A2A);    // 진한 초록색
+  final Color tertiaryColor = Color(0xFFE67E22);     // 진한 주황색
+  final Color lightGray = Color(0xFFF8F9FA);         // 밝은 배경
+  final Color mediumGray = Color(0xFFDEE2E6);        // 진한 경계선
+  final Color darkText = Color(0xFF2C3E50);          // 진한 텍스트
 
-  // 삭제 작업을 위한 Future 변수
+  // --- 삭제 작업을 위한 Future 변수 ---
   Future<void>? _deleteFuture;
 
   @override
@@ -42,6 +42,7 @@ class _TravelMainState extends State<TravelPackageMain> {
         shadowColor: primaryColor,
         centerTitle: false,
         actions: [
+          // --- 새 패키지 추가 버튼 ---
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: TextButton.icon(
@@ -60,13 +61,12 @@ class _TravelMainState extends State<TravelPackageMain> {
         padding: EdgeInsets.all(16),
         child: Stack(
           children: [
-            // 메인 StreamBuilder - 패키지 목록
+            // --- 메인 StreamBuilder - 패키지 목록 ---
             StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance
-                      .collection('package')
-                      .orderBy('pDate', descending: true)
-                      .snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('package')
+                  .orderBy('pDate', descending: true)
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return buildErrorState(snapshot.error.toString());
@@ -84,7 +84,7 @@ class _TravelMainState extends State<TravelPackageMain> {
               },
             ),
 
-            // 삭제 작업 FutureBuilder - 오버레이로 표시
+            // --- 삭제 작업 FutureBuilder - 오버레이로 표시 ---
             if (_deleteFuture != null)
               FutureBuilder<void>(
                 future: _deleteFuture,
@@ -103,9 +103,7 @@ class _TravelMainState extends State<TravelPackageMain> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  primaryColor,
-                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                               ),
                               SizedBox(height: 16),
                               Text(
@@ -124,13 +122,13 @@ class _TravelMainState extends State<TravelPackageMain> {
                   }
 
                   if (snapshot.connectionState == ConnectionState.done) {
-                    // 작업 완료 후 Future 초기화
+                    // --- 작업 완료 후 Future 초기화 ---
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       setState(() {
                         _deleteFuture = null;
                       });
 
-                      // 결과에 따른 스낵바 표시
+                      // --- 결과에 따른 스낵바 표시 ---
                       if (snapshot.hasError) {
                         _showSnackBar(
                           '삭제 중 오류가 발생했습니다: ${snapshot.error}',
@@ -153,17 +151,6 @@ class _TravelMainState extends State<TravelPackageMain> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton.extended(
-      //   onPressed: openInsert,
-      //   backgroundColor: secondaryColor,
-      //   foregroundColor: Colors.white,
-      //   elevation: 6,
-      //   icon: Icon(Icons.add),
-      //   label: Text(
-      //     '패키지 추가',
-      //     style: TextStyle(fontWeight: FontWeight.w600),
-      //   ),
-      // ),
     );
   }
 
@@ -185,7 +172,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 오류 상태 ---
+  // --- 오류 상태 위젯 생성 메서드 ---
   Widget buildErrorState(String error) {
     return Center(
       child: Container(
@@ -242,7 +229,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 로딩 상태 ---
+  // --- 로딩 상태 위젯 생성 메서드 ---
   Widget buildLoadingState() {
     return Center(
       child: Container(
@@ -282,7 +269,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 빈 상태 ---
+  // --- 빈 상태 위젯 생성 메서드 ---
   Widget buildEmptyState() {
     return Center(
       child: Container(
@@ -340,7 +327,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 패키지 그리드 ---
+  // --- 패키지 그리드 생성 메서드 ---
   Widget buildPackageGrid(List<QueryDocumentSnapshot> docs) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -354,7 +341,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 반응형 그리드 열 수 계산 ---
+  // --- 반응형 그리드 열 수 계산 메서드 ---
   int _getCrossAxisCount(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     if (width > 1200) return 4;
@@ -363,19 +350,24 @@ class _TravelMainState extends State<TravelPackageMain> {
     return 1;
   }
 
-  // --- 패키지 카드 (기존과 동일) ---
+  // --- 패키지 카드 생성 메서드 (airlineName 필드 추가 및 개선된 데이터 표시) ---
   Widget buildPackageCard(DocumentSnapshot doc) {
     try {
       final data = doc.data() as Map<String, dynamic>;
 
+      // --- 패키지 데이터 추출 (기존 필드명 유지) ---
       final packageName = data['pName']?.toString() ?? '이름 없음';
       final agencyName = data['tName']?.toString() ?? '';
-      final airlineCode = data['aId']?.toString() ?? '';
+      final airlineName = data['airlineName']?.toString() ?? '';      // 항공사명 필드 (새로 추가)
+      final airlineCode = data['aId']?.toString() ?? '';              // 항공편번호 (기존 aId 필드)
       final packageState = data['pState']?.toString() ?? '';
       final packagePrice = data['pPrice']?.toString() ?? '';
       final startDate = data['pStart']?.toString() ?? '';
       final endDate = data['pEnd']?.toString() ?? '';
       final groupCount = data['pCount']?.toString() ?? '';
+
+      // --- 향상된 항공사 정보 조합 (항공사명 + 항공편번호) ---
+      String enhancedAirlineInfo = _buildEnhancedAirlineInfo(airlineName, airlineCode);
 
       return Container(
         decoration: BoxDecoration(
@@ -396,7 +388,7 @@ class _TravelMainState extends State<TravelPackageMain> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 상단: 제목과 상태
+              // --- 상단: 제목과 상태 배지 ---
               Row(
                 children: [
                   Expanded(
@@ -434,33 +426,42 @@ class _TravelMainState extends State<TravelPackageMain> {
               ),
               SizedBox(height: 16),
 
-              // 중간: 정보
+              // --- 중간: 패키지 정보 (향상된 데이터 표시) ---
               Expanded(
                 child: Column(
                   children: [
+                    // --- 여행사 정보 ---
                     if (agencyName.isNotEmpty)
                       buildInfoRow(Icons.business, '여행사', agencyName),
-                    if (airlineCode.isNotEmpty)
-                      buildInfoRow(Icons.flight, '항공편', airlineCode),
+                    
+                    // --- 향상된 항공편 정보 (항공사명 + 항공편번호) ---
+                    if (enhancedAirlineInfo.isNotEmpty)
+                      buildInfoRow(Icons.flight, '항공편', enhancedAirlineInfo),
+                    
+                    // --- 가격 정보 (콤마 포맷팅 적용) ---
                     if (packagePrice.isNotEmpty)
                       buildInfoRow(
                         Icons.attach_money,
                         '가격',
-                        '${formatPrice(packagePrice)}원',
+                        '${formatPriceWithCommas(packagePrice)}원',
                       ),
+                    
+                    // --- 여행 기간 정보 ---
                     if (startDate.isNotEmpty && endDate.isNotEmpty)
                       buildInfoRow(
                         Icons.date_range,
                         '기간',
                         '${formatDate(startDate)} ~ ${formatDate(endDate)}',
                       ),
+                    
+                    // --- 최대 인원 정보 (콤마 포맷팅 적용) ---
                     if (groupCount.isNotEmpty)
-                      buildInfoRow(Icons.group, '인원', '${groupCount}명'),
+                      buildInfoRow(Icons.group, '인원', '${formatNumberWithCommas(groupCount)}명'),
                   ],
                 ),
               ),
 
-              // 하단: 액션 버튼
+              // --- 하단: 액션 버튼들 ---
               Divider(color: mediumGray),
               SizedBox(height: 8),
               Row(
@@ -501,6 +502,7 @@ class _TravelMainState extends State<TravelPackageMain> {
         ),
       );
     } catch (e) {
+      // --- 데이터 오류 시 에러 카드 표시 ---
       return Container(
         decoration: BoxDecoration(
           color: Colors.red[50],
@@ -532,7 +534,23 @@ class _TravelMainState extends State<TravelPackageMain> {
     }
   }
 
-  // --- 정보 행 ---
+  // --- 향상된 항공사 정보 생성 메서드 ---
+  String _buildEnhancedAirlineInfo(String airlineName, String airlineCode) {
+    if (airlineName.isNotEmpty && airlineCode.isNotEmpty) {
+      // --- 항공사명과 항공편번호가 모두 있는 경우: "대한항공 (KE-1234)" ---
+      return '$airlineName ($airlineCode)';
+    } else if (airlineName.isNotEmpty) {
+      // --- 항공사명만 있는 경우: "대한항공" ---
+      return airlineName;
+    } else if (airlineCode.isNotEmpty) {
+      // --- 항공편번호만 있는 경우: "KE-1234" ---
+      return airlineCode;
+    }
+    // --- 둘 다 없는 경우 빈 문자열 반환 ---
+    return '';
+  }
+
+  // --- 정보 행 생성 메서드 ---
   Widget buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8),
@@ -564,7 +582,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     );
   }
 
-  // --- 상태별 색상 ---
+  // --- 상태별 색상 반환 메서드 ---
   Color _getStateColor(String state) {
     switch (state) {
       case '모집중':
@@ -578,32 +596,56 @@ class _TravelMainState extends State<TravelPackageMain> {
     }
   }
 
-  // --- 가격 포맷팅 ---
-  String formatPrice(String price) {
+  // --- 가격 포맷팅 메서드 (기존 데이터 호환성 유지) ---
+  String formatPriceWithCommas(String price) {
     try {
-      int priceInt = int.parse(price);
+      // --- 이미 콤마가 있는 경우와 없는 경우 모두 처리 ---
+      String cleanPrice = price.replaceAll(',', '');
+      int priceInt = int.parse(cleanPrice);
       return priceInt.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
         (Match m) => '${m[1]},',
       );
     } catch (e) {
-      return price;
+      return price; // 파싱 실패 시 원본 반환
     }
   }
 
-  // --- 날짜 포맷팅 ---
+  // --- 일반 숫자 포맷팅 메서드 (인원수 등에 사용) ---
+  String formatNumberWithCommas(String number) {
+    try {
+      // --- 이미 콤마가 있는 경우와 없는 경우 모두 처리 ---
+      String cleanNumber = number.replaceAll(',', '');
+      int numberInt = int.parse(cleanNumber);
+      
+      // --- 인원수는 보통 큰 수가 아니므로 필요한 경우만 콤마 적용 ---
+      if (numberInt >= 1000) {
+        return numberInt.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+      } else {
+        return numberInt.toString();
+      }
+    } catch (e) {
+      return number; // 파싱 실패 시 원본 반환
+    }
+  }
+
+  // --- 날짜 포맷팅 메서드 ---
   String formatDate(String date) {
     try {
+      // --- 날짜 형식이 "2025.09.10." 형태인 경우 처리 ---
       if (date.length >= 10) {
-        return date.substring(0, 10);
+        return date.substring(0, 10); // "2025.09.10" 부분만 반환
       }
       return date;
     } catch (e) {
-      return date;
+      return date; // 오류 시 원본 반환
     }
   }
 
-  // --- 패키지 추가 ---
+  // --- 패키지 추가 페이지 열기 메서드 ---
   void openInsert() {
     Navigator.push(
       context,
@@ -611,7 +653,7 @@ class _TravelMainState extends State<TravelPackageMain> {
     ).then((_) => setState(() {}));
   }
 
-  // --- 패키지 수정 ---
+  // --- 패키지 수정 페이지 열기 메서드 ---
   void openUpdate(DocumentSnapshot doc) {
     Navigator.push(
       context,
@@ -619,80 +661,79 @@ class _TravelMainState extends State<TravelPackageMain> {
     ).then((_) => setState(() {}));
   }
 
-  // --- 삭제 확인 ---
+  // --- 삭제 확인 다이얼로그 표시 메서드 ---
   void confirmDelete(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     final name = data['pName'] ?? '이름 없음';
 
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Icon(Icons.warning_amber, color: Colors.orange[600]),
-                SizedBox(width: 12),
-                Text(
-                  '패키지 삭제',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: darkText,
-                  ),
-                ),
-              ],
-            ),
-            content: Text(
-              '"$name" 패키지를 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.',
-              style: TextStyle(color: darkText),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('취소'),
-                style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber, color: Colors.orange[600]),
+            SizedBox(width: 12),
+            Text(
+              '패키지 삭제',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: darkText,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // FutureBuilder를 위한 Future 설정
-                  setState(() {
-                    _deleteFuture = deletePackage(doc);
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[600],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text('삭제'),
-              ),
-            ],
+            ),
+          ],
+        ),
+        content: Text(
+          '"$name" 패키지를 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.',
+          style: TextStyle(color: darkText),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('취소'),
+            style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // --- FutureBuilder를 위한 Future 설정 ---
+              setState(() {
+                _deleteFuture = deletePackage(doc);
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text('삭제'),
+          ),
+        ],
+      ),
     );
   }
 
-  // --- 패키지 삭제 (mounted 제거) ---
+  // --- 패키지 삭제 실행 메서드 ---
   Future<void> deletePackage(DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
     final imageUrls = List<String>.from(data['images'] ?? []);
 
-    // 이미지 삭제
+    // --- Firebase Storage에서 이미지 삭제 ---
     for (String url in imageUrls) {
       if (url.startsWith('https://firebasestorage')) {
         try {
           await FirebaseStorage.instance.refFromURL(url).delete();
         } catch (e) {
-          // 이미지 삭제 실패는 무시
+          // --- 이미지 삭제 실패는 무시하고 계속 진행 ---
         }
       }
     }
 
-    // 문서 삭제
+    // --- Firestore에서 패키지 문서 삭제 ---
     await doc.reference.delete();
   }
 }
