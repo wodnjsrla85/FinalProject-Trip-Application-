@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:travel_web/veiw/firest_page.dart';
-import 'package:travel_web/veiw/register.dart';
+import 'package:travel_web/login/register.dart';
+import 'package:travel_web/view/package/dashboard.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
       final id = _id.text.trim();
       final pw = _pw.text.trim();
 
-      final doc = await db.collection('managers').doc(id).get();
+      final doc = await db.collection('admin').doc(id).get();
 
       if (!doc.exists) {
         Get.snackbar('아이디 오류', '존재하지 않는 아이디입니다.');
@@ -249,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      Get.to(() => FirestPage(), arguments: {'managerEmail': id});
+      Get.to(() => Dashboard(), arguments: {'managerEmail': id});
     } catch (e) {
       Get.snackbar('오류 발생', e.toString());
     }
