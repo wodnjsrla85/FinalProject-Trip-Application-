@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
       final id = _id.text.trim();
       final pw = _pw.text.trim();
 
-      final doc = await db.collection('managers').doc(id).get();
+      final doc = await db.collection('admin').doc(id).get();
 
       if (!doc.exists) {
         Get.snackbar('아이디 오류', '존재하지 않는 아이디입니다.');
