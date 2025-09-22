@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:travel_web/ui/dashboard/main_dashboard_page.dart';
+import 'package:travel_web/ui/pages/login/login.dart';
 import 'firebase_options.dart';
 
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Airplane Dashboard',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: MainDashboardPage(),
+      home: LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }

@@ -55,6 +55,8 @@ dependencies:
   # 형식 부분
   intl: ^0.19.0
 
+  get: ^4.7.2
+
 
 dev_dependencies:
   flutter_test:
