@@ -1,13 +1,16 @@
+// lib/ui/pages/dashboard/main_dashboard_page.dart
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-// 항공편 탭 페이지(출발/도착)
+// 항공편 탭(출발/도착) - 프로젝트 경로에 맞게 조정
 import 'package:travel_web/ui/dashboard_page.dart';
-// 예매 확인(리스트/상세로 연결)
+// 예매율(기존 페이지 유지)
 import 'package:travel_web/ui/pages/booking/booking_rate_page.dart';
+import 'package:travel_web/ui/pages/booking/booking_statistics.dart';
+import 'package:travel_web/ui/pages/inquery/inquiry_page.dart';
 
 class MainDashboardPage extends StatefulWidget {
   const MainDashboardPage({super.key});
@@ -20,60 +23,42 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
   bool _loading = true;
   Object? _error;
 
-  // 월 anchor
-  late DateTime _currentMonth;
-  late String _monthLabel;
-
   // KPI
-  int _totalBookings = 0; // 이달 결제완료 예약 수
-  int _totalRevenue = 0;  // 이달 결제완료 총액
+  int _monthlySeats = 0;  // 이달 예매 좌석 수 (결제완료 & bSit.length 합)
+  int _monthlyRevenue = 0; // 이달 결제완료 총액
   final _wonFmt = NumberFormat.decimalPattern('ko_KR');
   String _won(num v) => '₩${_wonFmt.format(v)}';
 
-  // 일별 총 예약(결제완료)
-  List<_DayPoint> _daily = [];
-
-  // 연간 월별(결제완료)
-  List<_MonthPoint> _monthly = [];
+  // 차트 데이터
+  List<_DayPoint> _daily = [];      // 이번 달 일별 좌석수
+  List<_MonthPoint> _monthly = [];  // 올해 월별 좌석수
 
   // 성별/나이
   List<_SexSlice> _sexSlices = const [];
   List<_AgeBucket> _ageBuckets = const [];
 
-  // 문의(inquery)
+  // 문의
   _InquerySummary _inqSummary = const _InquerySummary();
   List<_InqueryItem> _inqueries = const [];
 
-  // 노선 Top5
+  // 노선 Top5 (항공편 예약만 집계; 패키지 제외)
   List<_RouteStat> _topRoutes = [];
 
   // 차트 tooltip
   late TooltipBehavior _tooltip;
 
+  // 현재 달/연도(선택 UI는 제거, 자동 집계)
+  late final DateTime _monthAnchor;
+  late final int _currentYear;
+
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _currentMonth = DateTime(now.year, now.month, 1);
-    _monthLabel = DateFormat('yyyy.MM').format(_currentMonth);
+    _monthAnchor = DateTime(now.year, now.month, 1);
+    _currentYear = now.year;
     _tooltip = TooltipBehavior(enable: true, canShowMarker: true);
     _loadAll();
-  }
-
-  Future<void> _pickMonth() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _currentMonth,
-      firstDate: DateTime(2020, 1, 1),
-      lastDate: DateTime(2035, 12, 31),
-    );
-    if (picked != null) {
-      setState(() {
-        _currentMonth = DateTime(picked.year, picked.month, 1);
-        _monthLabel = DateFormat('yyyy.MM').format(_currentMonth);
-      });
-      _loadAll();
-    }
   }
 
   Future<void> _loadAll() async {
@@ -84,10 +69,10 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
 
     try {
       await Future.wait([
-        _loadBookingsThisMonth(), // KPI / 일별 / Top5
-        _loadBookingsThisYear(),  // 연간 월별
-        _loadUsers(),             // 성별/나이
-        _loadInqueries(),         // 문의 집계 + 최근
+        _loadThisMonthBookings(),  // KPI / 일별 / Top5
+        _loadThisYearBookings(),   // 연간 월별
+        _loadUsers(),              // 성별/나이
+        _loadInqueries(),          // 문의 집계 + 최근
       ]);
       if (mounted) setState(() => _loading = false);
     } catch (e) {
@@ -111,11 +96,9 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
   DateTime _asDate(dynamic v) {
     if (v is Timestamp) return v.toDate();
     if (v is DateTime) return v;
-    // ISO or "YYYY-MM-DD"
     final s = _safeStr(v);
     final dt = DateTime.tryParse(s);
     if (dt != null) return dt;
-    // "YYYY-MM-DD"만 온 경우
     if (s.length >= 10) {
       final y = int.tryParse(s.substring(0, 4)) ?? 1970;
       final m = int.tryParse(s.substring(5, 7)) ?? 1;
@@ -125,43 +108,44 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
     return DateTime.fromMillisecondsSinceEpoch(0);
   }
 
-  // 이번 달 [bDate] 범위
+  // 이번 달 [bDate] 범위 문자열
   (String start, String endExclusive, int daysInMonth) _monthRange() {
-    final start = DateTime(_currentMonth.year, _currentMonth.month, 1);
-    final endExclusive = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
+    final start = DateTime(_monthAnchor.year, _monthAnchor.month, 1);
+    final endExclusive = DateTime(_monthAnchor.year, _monthAnchor.month + 1, 1);
     final sStart = DateFormat('yyyy-MM-dd').format(start);
     final sEnd = DateFormat('yyyy-MM-dd').format(endExclusive);
-    final days = DateUtils.getDaysInMonth(_currentMonth.year, _currentMonth.month);
+    final days = DateUtils.getDaysInMonth(_monthAnchor.year, _monthAnchor.month);
     return (sStart, sEnd, days);
   }
 
-  // 올해 [bDate] 범위
+  // 올해 [bDate] 범위 문자열
   (String start, String endExclusive) _yearRange() {
-    final y = _currentMonth.year;
+    final y = _currentYear;
     final start = DateFormat('yyyy-MM-dd').format(DateTime(y, 1, 1));
     final end   = DateFormat('yyyy-MM-dd').format(DateTime(y + 1, 1, 1));
     return (start, end);
   }
 
-  // 일자 문자열 "YYYY-MM-DD" → 0-based day index (같은 달만)
+  // "YYYY-MM-DD" → index(0-based) in this month
   int? _dayIndexInMonth(String s) {
     if (s.length < 10) return null;
     final y = int.tryParse(s.substring(0, 4));
     final m = int.tryParse(s.substring(5, 7));
     final d = int.tryParse(s.substring(8, 10));
     if (y == null || m == null || d == null) return null;
-    if (y != _currentMonth.year || m != _currentMonth.month) return null;
+    if (y != _monthAnchor.year || m != _monthAnchor.month) return null;
     return d - 1;
   }
 
   // ─────────────────────────────
-  // Bookings (이달: KPI/일별/Top5)
+  // Bookings (이번 달: KPI/일별/Top5)
   // ─────────────────────────────
-  Future<void> _loadBookingsThisMonth() async {
+  Future<void> _loadThisMonthBookings() async {
     final (startStr, endStr, dim) = _monthRange();
 
+    // 일별 좌석수 초기화
     final daily = List.generate(dim, (i) {
-      final d = DateTime(_currentMonth.year, _currentMonth.month, i + 1);
+      final d = DateTime(_monthAnchor.year, _monthAnchor.month, i + 1);
       return _DayPoint(d, DateFormat('d일').format(d), 0);
     });
 
@@ -169,30 +153,33 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
         .collection('booking')
         .where('bDate', isGreaterThanOrEqualTo: startStr)
         .where('bDate', isLessThan: endStr)
-        .orderBy('bDate') // 단일 필드 정렬(인덱스 불필요)
+        .orderBy('bDate') // 단일 필드 정렬(복합 인덱스 불필요)
         .get();
 
-    int totalCount = 0;
-    int totalRevenue = 0;
+    int monthlySeats = 0;   // 좌석 수 합
+    int monthlyRevenue = 0; // 총액 합
 
-    // 노선 집계(패키지 제외 → airplane_* 문서와 연결 가능)
-    final Map<String, int> flightCountById = {};
+    final Map<String, int> flightCountById = {}; // what != '패키지' 에 한해 항공편 집계
 
     for (final d in qs.docs) {
       final m = d.data();
       if (_safeStr(m['bState']) != '결제완료') continue;
 
+      final seats = (m['bSit'] as List?)?.length ?? 0;
+      if (seats <= 0) continue;
+
       final idx = _dayIndexInMonth(_safeStr(m['bDate']));
       if (idx == null || idx < 0 || idx >= daily.length) continue;
 
-      daily[idx].count += 1;
-      totalCount += 1;
-      totalRevenue += _asInt(m['aPrice']);
+      daily[idx].count += seats;
+      monthlySeats += seats;
+      monthlyRevenue += _asInt(m['aPrice']);
 
+      // 항공편 Top5용(패키지는 flight 문서로 resolve 불가하므로 제외)
       if (_safeStr(m['what']) != '패키지') {
         final fid = _safeStr(m['aid']);
         if (fid.isNotEmpty) {
-          flightCountById[fid] = (flightCountById[fid] ?? 0) + 1;
+          flightCountById[fid] = (flightCountById[fid] ?? 0) + seats; // 좌석 수 기준
         }
       }
     }
@@ -200,19 +187,15 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
     final topRoutes = await _resolveTopRoutes(flightCountById);
 
     _daily = daily;
-    _totalBookings = totalCount;
-    _totalRevenue = totalRevenue;
+    _monthlySeats = monthlySeats;
+    _monthlyRevenue = monthlyRevenue;
     _topRoutes = topRoutes;
   }
 
-  // Bookings (올해: 월별 막대)
-  Future<void> _loadBookingsThisYear() async {
+  // Bookings (올해: 월별 좌석수 막대)
+  Future<void> _loadThisYearBookings() async {
     final (startStr, endStr) = _yearRange();
-
-    final monthly = List.generate(
-      12,
-      (i) => _MonthPoint(i + 1, '${i + 1}월', 0),
-    );
+    final monthly = List.generate(12, (i) => _MonthPoint(i + 1, '${i + 1}월', 0));
 
     final qs = await FirebaseFirestore.instance
         .collection('booking')
@@ -225,18 +208,21 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
       final m = d.data();
       if (_safeStr(m['bState']) != '결제완료') continue;
 
+      final seats = (m['bSit'] as List?)?.length ?? 0;
+      if (seats <= 0) continue;
+
       final s = _safeStr(m['bDate']); // "YYYY-MM-DD"
       if (s.length < 7) continue;
       final mm = int.tryParse(s.substring(5, 7));
       if (mm == null || mm < 1 || mm > 12) continue;
 
-      monthly[mm - 1].count += 1;
+      monthly[mm - 1].count += seats;
     }
 
     _monthly = monthly;
   }
 
-  // flight 메타 resolve
+  // flight 라벨 resolve
   Future<List<_RouteStat>> _resolveTopRoutes(Map<String, int> counts) async {
     if (counts.isEmpty) return [];
 
@@ -266,7 +252,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
     final list = <_RouteStat>[];
     for (final e in counts.entries) {
       final fid = e.key;
-      final c = e.value;
+      final seatCount = e.value;
       final meta = startMap[fid] ?? endMap[fid];
 
       String origin = '미상';
@@ -277,7 +263,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
         if (o.isNotEmpty) origin = o;
         if (t.isNotEmpty) dest = t;
       }
-      list.add(_RouteStat(fid: fid, routeLabel: '$origin → $dest', count: c));
+      list.add(_RouteStat(fid: fid, routeLabel: '$origin → $dest', count: seatCount));
     }
     list.sort((a, b) => b.count.compareTo(a.count));
     return list.take(5).toList();
@@ -324,9 +310,9 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
     _ageBuckets = buckets;
   }
 
-  // Inqueries (복합 인덱스 없이 동작하도록 분리)
+  // Inqueries
   Future<void> _loadInqueries() async {
-    // 1) 요약: where만
+    // 1) 요약
     final summaryQs = await FirebaseFirestore.instance
         .collection('inquery')
         .where('to', isEqualTo: '항공사')
@@ -340,7 +326,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
       else pending++;
     }
 
-    // 2) 최신 목록: orderBy만 → 이후 필터
+    // 2) 최신 목록(필드 값 후필터)
     final latestQs = await FirebaseFirestore.instance
         .collection('inquery')
         .orderBy('date', descending: true)
@@ -376,16 +362,29 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
       appBar: AppBar(
         title: const Text('항공 대시보드'),
         actions: [
-          // 항공편 탭 페이지로 이동(출발/도착 탭)
+          // 예매율(기존 페이지 유지)
           TextButton.icon(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const DashboardPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingRatePage()));
+            },
+            icon: const Icon(Icons.bar_chart, size: 18),
+            label: const Text('예매율'),
+          ),
+          // 항공편 탭(출발/도착)
+          TextButton.icon(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const DashboardPage()));
             },
             icon: const Icon(Icons.flight, size: 18),
             label: const Text('항공편'),
+          ),
+          // 문의 탭(처리중/완료)
+          TextButton.icon(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const InquiryPage()));
+            },
+            icon: const Icon(Icons.support_agent, size: 18),
+            label: const Text('문의'),
           ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadAll),
         ],
@@ -399,6 +398,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
   }
 
   Widget _buildBody(BuildContext context) {
+    final monthLabel = DateFormat('yyyy.MM').format(_monthAnchor);
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 1200;
@@ -409,61 +409,42 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // 1) 상단 KPI + 월 선택
-              Row(
+              // ── 1) 상단 KPI (월/연 선택 UI 제거됨)
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        _KpiCard(
-                          title: '이달 예매량(결제완료)',
-                          value: '${_wonFmt.format(_totalBookings)}건',
-                          icon: Icons.receipt_long,
-                          color: Colors.indigo,
-                        ),
-                        _KpiCard(
-                          title: '이달 수익',
-                          value: _won(_totalRevenue),
-                          icon: Icons.attach_money,
-                          color: Colors.teal,
-                        ),
-                      ],
-                    ),
+                  _KpiCard(
+                    title: '이달 예매 좌석수',
+                    value: '${_wonFmt.format(_monthlySeats)}석',
+                    icon: Icons.airline_seat_recline_normal,
+                    color: Colors.indigo,
+                    caption: monthLabel,
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text('집계 월 선택', style: TextStyle(fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 6),
-                      OutlinedButton.icon(
-                        onPressed: _pickMonth,
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(_monthLabel),
-                      ),
-                    ],
+                  _KpiCard(
+                    title: '이달 수익(결제완료)',
+                    value: _won(_monthlyRevenue),
+                    icon: Icons.attach_money,
+                    color: Colors.teal,
+                    caption: monthLabel,
                   ),
                 ],
               ),
 
               const SizedBox(height: 16),
 
-              // 2) 메인 그리드: 일별(라인) → 연간(막대) → TOP5 (요청: TOP5를 연간 오른쪽에)
+              // ── 2) 메인 그리드: 일별(라인) | 연간(막대) | TOP5
               _ResponsiveGrid(
                 crossAxisCount: crossAxis,
                 children: [
                   _Panel(
-                    title: '월간 · 일별 예매 추이 (전체)',
+                    title: '월간 · 일별 예매 추이 (좌석수)',
+                    subtitle: monthLabel,
                     trailing: TextButton.icon(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const BookingRatePage()),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingStatsPage()));
                       },
-                      icon: const Icon(Icons.chevron_right),
+                      icon: const Icon(Icons.analytics),
                       label: const Text('예매 통계 보기'),
                     ),
                     child: SizedBox(
@@ -474,7 +455,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
                         primaryYAxis: const NumericAxis(majorGridLines: MajorGridLines(width: 1), decimalPlaces: 0),
                         series: <CartesianSeries<_DayPoint, String>>[
                           LineSeries<_DayPoint, String>(
-                            name: '예약수',
+                            name: '좌석수',
                             dataSource: _daily,
                             xValueMapper: (d, _) => d.label,
                             yValueMapper: (d, _) => d.count,
@@ -485,8 +466,15 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
                     ),
                   ),
                   _Panel(
-                    title: '연간 · 월별 예매 추이 (결제완료)',
-                    subtitle: '${_currentMonth.year}년',
+                    title: '연간 · 월별 예매 추이 (좌석수)',
+                    subtitle: '$_currentYear년',
+                    trailing: TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingStatsPage()));
+                      },
+                      icon: const Icon(Icons.analytics_outlined),
+                      label: const Text('예매 통계 보기'),
+                    ),
                     child: SizedBox(
                       height: 260,
                       child: SfCartesianChart(
@@ -495,7 +483,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
                         primaryYAxis: const NumericAxis(majorGridLines: MajorGridLines(width: 1), decimalPlaces: 0),
                         series: <CartesianSeries<_MonthPoint, String>>[
                           ColumnSeries<_MonthPoint, String>(
-                            name: '예약수',
+                            name: '좌석수',
                             dataSource: _monthly,
                             xValueMapper: (d, _) => d.label,
                             yValueMapper: (d, _) => d.count,
@@ -505,10 +493,16 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
                       ),
                     ),
                   ),
-                  // ✅ TOP5를 같은 그리드 라인에 배치 — 3열이면 연간의 "오른쪽"에 위치
                   _Panel(
-                    title: '노선별 예약 TOP 5',
-                    subtitle: '이번 달 결제완료 + 항공편 예약 기준 (패키지 제외)',
+                    title: '노선별 예약 TOP 5 (좌석수)',
+                    subtitle: '이번 달 · 항공편 예약 기준 (패키지 제외)',
+                    trailing: TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingRatePage()));
+                      },
+                      icon: const Icon(Icons.bar_chart),
+                      label: const Text('예매율 보기'),
+                    ),
                     child: _RouteTop5List(
                       items: _topRoutes,
                       onItemTap: () {
@@ -521,7 +515,7 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
 
               const SizedBox(height: 16),
 
-              // 3) 하단: 성별/나이 + 문의현황
+              // ── 3) 하단: 성별/나이 | 문의
               _ResponsiveGrid(
                 crossAxisCount: crossAxis,
                 children: [
@@ -566,6 +560,13 @@ class _MainDashboardPageState extends State<MainDashboardPage> {
                   _Panel(
                     title: '문의 현황',
                     subtitle: 'to = 항공사',
+                    trailing: TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const InquiryPage()));
+                      },
+                      icon: const Icon(Icons.support_agent),
+                      label: const Text('전체 문의 보기'),
+                    ),
                     child: SizedBox(
                       height: 260,
                       child: Column(
@@ -616,7 +617,7 @@ class _MonthPoint {
 class _RouteStat {
   final String fid;
   final String routeLabel;
-  final int count;
+  final int count; // 좌석 수
   _RouteStat({required this.fid, required this.routeLabel, required this.count});
 }
 
@@ -664,11 +665,13 @@ class _KpiCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final String? caption;
   const _KpiCard({
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
+    this.caption,
   });
 
   @override
@@ -689,6 +692,8 @@ class _KpiCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (caption != null)
+                  Text(caption!, style: const TextStyle(fontSize: 11, color: Colors.black45)),
                 Text(title, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                 const SizedBox(height: 2),
                 Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
@@ -779,9 +784,9 @@ class _RouteTop5List extends StatelessWidget {
             child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           title: Text(r.routeLabel),
-          subtitle: Text('예약: ${r.count}건'),
+          subtitle: Text('좌석수: ${r.count}'),
           trailing: const Icon(Icons.chevron_right),
-          onTap: onItemTap, // 탭 → 예매 확인 페이지
+          onTap: onItemTap, // 탭 → 예매율 페이지
         );
       },
     );
@@ -806,7 +811,10 @@ class _InqueryList extends StatelessWidget {
             it.status == '답변완료' ? Icons.check_circle : Icons.mark_chat_unread,
             color: it.status == '답변완료' ? Colors.green : Colors.orange,
           ),
-          title: Text(it.title.isEmpty ? '(제목 없음)' : it.title),
+          title: Text(
+            it.title.isEmpty ? '(제목 없음)' : it.title,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           subtitle: Text('${DateFormat('yyyy.MM.dd HH:mm').format(it.createdAt)} · ${it.email}'),
           trailing: Text(it.status, style: const TextStyle(fontWeight: FontWeight.w600)),
         );
