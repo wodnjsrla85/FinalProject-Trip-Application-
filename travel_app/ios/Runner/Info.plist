@@ -4,16 +4,28 @@
 <dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	<key>NSAllowsArbitraryLoads</key>
-	<true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 	</dict>
+
+	<!-- ✅ Stripe & Flutter 관련 권한 -->
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is required for payments</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is required for payments</string>
+
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+
+	<!-- ✅ Stripe URL Scheme -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-    <string>https</string>
-    <string>http</string>
+		<string>stripe</string>
+		<string>stripesdk</string>
+		<string>https</string>
+		<string>http</string>
 	</array>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -40,6 +52,18 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+
+	<!-- ✅ iOS Deep Link / Callback Scheme -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>travelapp</string> <!-- Flutter Stripe Callback 스킴 -->
+			</array>
+		</dict>
+	</array>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -53,18 +77,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>CFBundleURLTypes</key>
-	<array>
-	<dict>
-		<key>CFBundleURLSchemes</key>
-		<array>
-		<string>travelapp</string>
-		</array>
-	</dict>
-	</array>
 </dict>
 </plist>

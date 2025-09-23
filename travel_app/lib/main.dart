@@ -1,13 +1,20 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:travel_app/main_tab_screen.dart';
 import 'package:travel_app/view/login/join/login.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // ✅ Stripe 초기화 (publishableKey는 Stripe Dashboard에서 발급)
+  Stripe.publishableKey = "pk_test_51SAMUwDU3DihCdHE9F0o7rYNSybGmxuuWjq4NIQ3P1f8gTaAMljxN5vLGDTcVm3gy4Nm7a1KZ5JN1dM4mcabcgCR00Gws69veL"; 
+  Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
+  await Stripe.instance.applySettings();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -17,15 +24,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(),
-      home: AuthWrapper(), 
+      title: 'Travel App',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      ),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-// 로그인 상태 확인
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -39,8 +48,11 @@ class AuthWrapper extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        
-        return Login();
+        if (snapshot.hasData) {
+          return const MainTabScreen(); // ✅ 로그인 성공 → 메인
+        } else {
+          return const Login(); // ✅ 로그인 필요
+        }
       },
     );
   }

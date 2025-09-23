@@ -1,13 +1,34 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 import cv2
 import pytesseract
 import numpy as np
-import os
+import stripe
+from PIL import Image
+import io
 
+# ========================
+# FastAPI 앱 초기화
+# ========================
 app = FastAPI()
-yolo_model = YOLO("/Users/jeongseoyun/Desktop/FinalProject-Trip-Application-/Python/fastAPI/passport_mrz_model4/weights/best.pt")
+
+# ✅ CORS 허용
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 개발 단계에서는 * 허용
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ YOLO MRZ Detection 모델 로드
+yolo_model = YOLO("Python/fastAPI/passport_mrz_model4/weights/best.pt")
+
+# ✅ Stripe API Key 설정
+stripe.api_key = "sk_test_51SAMUwDU3DihCdHE5YZSH9ccfNCWa6dX9IQnqyvCc8ok4joKld4RJBRTIP7HqHdgPcBP8QqtdbjvbMFjqiwsVAE300e8bdNZii"
+
 
 def preprocess_for_ocr(img):
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -60,6 +81,31 @@ async def extract_passport_info(image: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+# ========================
+# Stripe 결제 API
+# ========================
+@app.post("/create-payment-intent/")
+async def create_payment_intent(data: dict):
+    try:
+        amount = data.get("amount", 1000)
+        currency = data.get("currency", "usd")
+
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency=currency,
+            automatic_payment_methods={"enabled": True},
+        )
+
+        return {"clientSecret": intent.client_secret}
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+# ========================
+# 서버 실행
+# ========================
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
