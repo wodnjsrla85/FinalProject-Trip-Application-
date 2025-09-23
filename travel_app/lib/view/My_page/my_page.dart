@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/view/My_page/flight_tracker_page.dart';
-import 'package:travel_app/model/app_user.dart';
 import 'package:travel_app/view/My_page/edit_profile.dart';
 import 'package:travel_app/view/My_page/flights_booking_list.dart';
+import 'package:travel_app/view/My_page/inquery_write_page.dart';
 import 'package:travel_app/view/My_page/package_booking_List.dart';
 import 'package:travel_app/view/My_page/privacy_police.dart';
 import 'package:travel_app/view/My_page/terms_of_service.dart';
@@ -109,8 +109,8 @@ class MyPage extends ConsumerWidget {
                           color: Colors.grey[300],
                         ),
                         _buildStatCard(
-                          icon: Icons.favorite,
-                          label: '좋아요',
+                          icon: Icons.question_answer_outlined,
+                          label: '진행문의',
                           value: '12',
                           color: Colors.red,
                         ),
@@ -120,24 +120,27 @@ class MyPage extends ConsumerWidget {
                           color: Colors.grey[300],
                         ),
                         countShorts.when(
-                          data: (count) => _buildStatCard(
-                            icon: Icons.video_library,
-                            label: '비디오',
-                            value: '$count개',
-                            color: Colors.purple,
-                          ),
-                          loading: () => _buildStatCard(
-                            icon: Icons.video_library,
-                            label: '비디오',
-                            value: '로딩 중',
-                            color: Colors.purple,
-                          ),
-                          error: (err, stack) => _buildStatCard(
-                            icon: Icons.video_library,
-                            label: '비디오',
-                            value: '오류',
-                            color: Colors.purple,
-                          ),
+                          data:
+                              (count) => _buildStatCard(
+                                icon: Icons.video_library,
+                                label: '비디오',
+                                value: '$count개',
+                                color: Colors.purple,
+                              ),
+                          loading:
+                              () => _buildStatCard(
+                                icon: Icons.video_library,
+                                label: '비디오',
+                                value: '로딩 중',
+                                color: Colors.purple,
+                              ),
+                          error:
+                              (err, stack) => _buildStatCard(
+                                icon: Icons.video_library,
+                                label: '비디오',
+                                value: '오류',
+                                color: Colors.purple,
+                              ),
                         ),
                       ],
                     ),
@@ -168,17 +171,17 @@ class MyPage extends ConsumerWidget {
                       },
                     ),
                     _buildMenuItem(
-  icon: Icons.flight,
-  title: '실시간 항공기 추적',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const FlightTrackerPage(),
-      ),
-    );
-  },
-),
+                      icon: Icons.flight,
+                      title: '실시간 항공기 추적',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const FlightTrackerPage(),
+                          ),
+                        );
+                      },
+                    ),
                     _buildMenuItem(
                       icon: Icons.card_travel,
                       title: '내 패키지 예약',
@@ -211,7 +214,6 @@ class MyPage extends ConsumerWidget {
                       icon: Icons.person_outline,
                       title: '내 정보 수정하기',
                       onTap: () {
-                        // userAsync에서 실제 데이터를 가져와서 전달
                         final userAsyncValue = ref.read(userStreamProvider);
                         userAsyncValue.whenData((userData) {
                           if (userData != null) {
@@ -230,7 +232,14 @@ class MyPage extends ConsumerWidget {
                     _buildMenuItem(
                       icon: Icons.help_outline,
                       title: '문의하기',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InqueryWritePage(),
+                          ),
+                        );
+                      },
                     ),
                     _buildMenuItem(
                       icon: Icons.privacy_tip_outlined,
@@ -260,56 +269,62 @@ class MyPage extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // 로그아웃 버튼
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: const Text('로그아웃'),
-                              content: const Text('정말 로그아웃하시겠습니까?'),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: const Text('취소'),
+              // 로그아웃 섹션
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('로그아웃'),
+                                  content: const Text('정말 로그아웃하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('로그아웃'),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('로그아웃'),
-                                ),
-                              ],
-                            ),
-                      );
+                          );
 
-                      if (confirm == true) {
-                        await FirebaseAuth.instance.signOut();
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.red[300]!),
-                    ),
-                    child: Text(
-                      '로그아웃',
-                      style: TextStyle(
-                        color: Colors.red[600],
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                          if (confirm == true) {
+                            await FirebaseAuth.instance.signOut();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Colors.red[300]!),
+                        ),
+                        child: Text(
+                          '로그아웃',
+                          style: TextStyle(
+                            color: Colors.red[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 40),
             ],
           ),
         ),

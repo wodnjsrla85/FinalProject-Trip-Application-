@@ -2,11 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/vm/booking_provider.dart';
 
-class PackageBookingList extends ConsumerWidget {
+class PackageBookingList extends ConsumerStatefulWidget {
   const PackageBookingList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PackageBookingList> createState() => _PackageBookingListState();
+}
+
+class _PackageBookingListState extends ConsumerState<PackageBookingList> {
+  late Future<List<Map<String, dynamic>>> _futureBookings;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureBookings = BookingProvider().getMyPackageBookingsWithDetails();
+  }
+
+  void _refreshList() {
+    setState(() {
+      _futureBookings = BookingProvider().getMyPackageBookingsWithDetails();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("패키지 예약 내역"),
@@ -14,7 +33,7 @@ class PackageBookingList extends ConsumerWidget {
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: BookingProvider().getMyPackageBookingsWithDetails(),
+        future: _futureBookings,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -35,15 +54,15 @@ class PackageBookingList extends ConsumerWidget {
             itemCount: bookingsWithDetails.length,
             itemBuilder: (context, index) {
               final item = bookingsWithDetails[index];
-              final booking = item['booking']; // Booking 객체
-              final packageInfo = item['package']; // Map<String, dynamic>?
+              final booking = item['booking'];
+              final packageInfo = item['package'];
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start, // 상단 정렬
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 이미지 섹션
                       ClipRRect(
@@ -51,25 +70,24 @@ class PackageBookingList extends ConsumerWidget {
                         child: SizedBox(
                           width: 80,
                           height: 80,
-                          child:
-                              packageInfo != null &&
-                                      packageInfo['images'] != null
-                                  ? Image.network(
-                                    packageInfo['images'][0],
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        color: Colors.grey[300],
-                                        child: const Icon(
-                                          Icons.image_not_supported,
-                                        ),
-                                      );
-                                    },
-                                  )
-                                  : Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.image),
-                                  ),
+                          child: packageInfo != null &&
+                                  packageInfo['images'] != null
+                              ? Image.network(
+                                  packageInfo['images'][0],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[300],
+                                      child: const Icon(
+                                        Icons.image_not_supported,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image),
+                                ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -79,7 +97,6 @@ class PackageBookingList extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 패키지명
                             if (packageInfo != null) ...[
                               Text(
                                 packageInfo['pName'] ?? '패키지명 없음',
@@ -91,8 +108,6 @@ class PackageBookingList extends ConsumerWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
-
-                              // 여행 기간
                               Text(
                                 '${packageInfo['pStart']} ~ ${packageInfo['pEnd']}',
                                 style: TextStyle(
@@ -112,10 +127,9 @@ class PackageBookingList extends ConsumerWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color:
-                                        booking.bState == '결제완료'
-                                            ? Colors.green
-                                            : Colors.orange,
+                                    color: booking.bState == '결제완료'
+                                        ? Colors.green
+                                        : Colors.orange,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
@@ -128,11 +142,42 @@ class PackageBookingList extends ConsumerWidget {
                                   ),
                                 ),
                                 const Spacer(),
-                                Text(
-                                  '인원수: ${booking.bSit?.isNotEmpty == true ? booking.bSit!.first : "1"}명',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      '인원수: ${booking.bSit?.isNotEmpty == true ? booking.bSit!.first : "1"}명',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    if(booking.bState == '결제완료')
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          await ref
+                                              .read(bookingRepositoryProvider)
+                                              .cancelBooking(booking.bid);
+
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content:
+                                                    Text("예약이 취소되었습니다.")),
+                                          );
+
+                                          _refreshList(); // 리스트 새로고침
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text("취소 실패: $e")),
+                                          );
+                                        }
+                                      },
+                                      child: const Text("취소하기"),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

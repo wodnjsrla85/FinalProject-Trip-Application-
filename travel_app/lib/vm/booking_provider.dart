@@ -160,6 +160,13 @@ Future<String> createBooking({
     return result;
   }
 
+  // booking_provider.dart (provider 추가)
+final packageBookingsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final repo = ref.read(bookingRepositoryProvider);
+  return repo.getMyPackageBookingsWithDetails();
+});
+
+
   // 예약 상태 업데이트
   Future<void> updateBookingState(String bookingId, String newState) async {
     await bookingRef.doc(bookingId).update({'bState': newState});
