@@ -8,7 +8,8 @@ import 'dart:io';
 
 class BookingSheet extends StatefulWidget {
   final int passengerCount;
-  const BookingSheet({super.key, required this.passengerCount});
+  final int price;
+  const BookingSheet({super.key, required this.passengerCount, required this.price});
 
   @override
   State<BookingSheet> createState() => _BookingSheetState();
@@ -18,12 +19,15 @@ class _BookingSheetState extends State<BookingSheet> {
   late List<TextEditingController> passportControllers;
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
+  late int total_price;
 
   // ✅ FastAPI 서버 주소
   final String serverUrl = "http://127.0.0.1:8000";
 
   @override
   void initState() {
+    total_price = widget.passengerCount * widget.price;
+
     super.initState();
     passportControllers = List.generate(
       widget.passengerCount,
@@ -94,7 +98,7 @@ class _BookingSheetState extends State<BookingSheet> {
         Uri.parse("$serverUrl/create-payment-intent/"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          "amount": 5000,
+          "amount": total_price,
           "currency": "usd",
         }),
       );
