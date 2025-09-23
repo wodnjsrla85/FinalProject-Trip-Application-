@@ -21,11 +21,19 @@ class _RegisterPageState extends State<RegisterPage> {
   final _pw    = TextEditingController(); // CPw
   final _pw2   = TextEditingController(); // CPw 확인
   final _phone = TextEditingController(); // CPhone
+  // 1) 항공사 리스트 (중복 제거)
+final List<String> _airlines = <String>{
+  '에티하드 항공', '일본항공', '중화항공', '아시아나항공', '에어캐나다', '진에어',
+  '웨스트젯', '말레이시아 항공', '타이항공', '델타항공', '전일본공수',
+  '대한항공', '싱가포르항공', '샤먼항공', '이얏호항공사', '재원항공사',
+}.toList();
+
+// 2) 상태값 (기존과 동일하게 사용)
+  String _type = '대한항공'; // 초기 선택값 예시
 
   // UI States
   bool _obscure1 = true;
   bool _obscure2 = true;
-  String _type = '사원';                 // CType
   DateTime? _joinDate;                  // CDate
 
   // Email duplicate check
@@ -309,23 +317,75 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 16),
 
                           // CType
-                          _label(theme, '직급'),
-                          SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            value: _type,
-                            decoration: _inputDeco(icon: Icons.workspace_premium, hint: '직급 선택'),
-                            items: [
-                              DropdownMenuItem(value: '사원', child: Text('사원')),
-                              DropdownMenuItem(value: '대리', child: Text('대리')),
-                              DropdownMenuItem(value: '과장', child: Text('과장')),
-                              DropdownMenuItem(value: '차장', child: Text('차장')),
-                              DropdownMenuItem(value: '부장', child: Text('부장')),
-                              DropdownMenuItem(value: 'Admin', child: Text('Admin')),
-                            ],
-                            onChanged: (v) => setState(() => _type = v ?? '사원'),
+                        _label(theme, '항공사 검색'),
+                          const SizedBox(height: 8),
+                          Autocomplete<String>(
+                            // 초기 표시값을 현재 선택값과 동기화
+                            initialValue: TextEditingValue(text: _type),
+                            // 필터링 로직: 입력이 비었으면 전체, 아니면 포함 검색
+                            optionsBuilder: (TextEditingValue textEditingValue) {
+                              final q = textEditingValue.text.trim();
+                              if (q.isEmpty) return _airlines;
+                              return _airlines.where(
+                                (a) => a.toLowerCase().contains(q.toLowerCase()),
+                              );
+                            },
+                            onSelected: (String selection) {
+                              setState(() => _type = selection);
+                            },
+                            // 검색 입력창을 기존 데코레이션으로 래핑
+                            fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
+                              // 외부 상태값 변화 시에도 입력창 텍스트를 맞춰줌
+                              if (textController.text != _type) {
+                                textController.text = _type;
+                                textController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: textController.text.length),
+                                );
+                              }
+                              return TextFormField(
+                                controller: textController,
+                                focusNode: focusNode,
+                                decoration: _inputDeco(icon: Icons.flight, hint: '항공사 검색'),
+                                onFieldSubmitted: (_) => onFieldSubmitted(),
+                                validator: (v) {
+                                  // 필요 시: 목록 외 값 방지
+                                  if (v == null || !_airlines.contains(v)) {
+                                    return '목록에서 항공사를 선택해 주세요.';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (v) => _type = v ?? _type,
+                              );
+                            },
+                            // 옵션 목록 UI(선택): 기본 리스트보다 더 예쁘게 커스터마이즈
+                            optionsViewBuilder: (context, onSelected, options) {
+                              final opts = options.toList();
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: Material(
+                                  elevation: 4,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxHeight: 260, minWidth: 280),
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: opts.length,
+                                      itemBuilder: (context, index) {
+                                        final String airline = opts[index];
+                                        return ListTile(
+                                          dense: true,
+                                          title: Text(airline),
+                                          onTap: () => onSelected(airline),
+                                          leading: const Icon(Icons.flight_takeoff),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          SizedBox(height: 16),
-
+                          const SizedBox(height: 16),
                           // CDate
                           _label(theme, '입사일자 (CDate)'),
                           SizedBox(height: 8),
