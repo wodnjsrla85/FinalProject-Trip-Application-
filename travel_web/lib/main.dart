@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:travel_web/ui/dashboard/main_dashboard_page.dart';
 import 'package:travel_web/ui/pages/login/login.dart';
+import 'package:travel_web/view/package/dashboard.dart';
 import 'firebase_options.dart';
 
 

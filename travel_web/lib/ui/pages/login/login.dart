@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:travel_web/ui/dashboard/main_dashboard_page.dart';
 import 'package:travel_web/ui/pages/login/register.dart';
+import 'package:travel_web/view/package/dashboard.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -223,35 +224,51 @@ class _LoginPageState extends State<LoginPage> {
 
   // === 기존 로그인 로직 그대로 유지 ===
   Future<void> login() async {
-    final isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid) return;
+  final isValid = _formKey.currentState?.validate() ?? false;
+  if (!isValid) return;
 
-    try {
-      final id = _id.text.trim();
-      final pw = _pw.text.trim();
+  try {
+    final id = _id.text.trim();
+    final pw = _pw.text.trim();
 
-      final doc = await db.collection('admin').doc(id).get();
+    final doc = await db.collection('admin').doc(id).get();
 
-      if (!doc.exists) {
-        Get.snackbar('아이디 오류', '존재하지 않는 아이디입니다.');
-        return;
-      }
-
-      final data = doc.data();
-      final savedPw = data?['password'] as String?;
-      if (savedPw == null) {
-        Get.snackbar('데이터 오류', '비밀번호 정보가 없습니다.');
-        return;
-      }
-
-      if (savedPw != pw) {
-        Get.snackbar('비밀번호 오류', '비밀번호를 확인하세요.');
-        return;
-      }
-
-      Get.to(() => MainDashboardPage(), arguments: {'managerEmail': id});
-    } catch (e) {
-      Get.snackbar('오류 발생', e.toString());
+    if (!doc.exists) {
+      Get.snackbar('아이디 오류', '존재하지 않는 아이디입니다.');
+      return;
     }
+
+    final data = doc.data();
+    final savedPw = data?['password'] as String?;
+    final ctype = data?['CType'] as String?;
+
+    if (savedPw == null) {
+      Get.snackbar('데이터 오류', '비밀번호 정보가 없습니다.');
+      return;
+    }
+
+    if (savedPw != pw) {
+      Get.snackbar('비밀번호 오류', '비밀번호를 확인하세요.');
+      return;
+    }
+
+    // CType 조건 분기
+    if (ctype != null) {
+      if (ctype.endsWith('투어')) {
+        // 투어용 페이지
+        Get.to(() => Dashboard(), arguments: {'admin': id, 'ctype': ctype});
+      } else if (ctype.endsWith('항공')) {
+        // 항공용 페이지
+        Get.to(() => MainDashboardPage(), arguments: {'admin': id, 'ctype': ctype});
+      } else {
+        // 기본 페이지 (기존)
+        Get.to(() => MainDashboardPage(), arguments: {'admin': id, 'ctype': ctype});
+      }
+    } else {
+      Get.to(() => MainDashboardPage(), arguments: {'admin': id});
+    }
+  } catch (e) {
+    Get.snackbar('오류 발생', e.toString());
   }
+}
 }
