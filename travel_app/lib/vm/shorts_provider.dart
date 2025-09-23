@@ -183,3 +183,20 @@ final deleteShortProvider =
     rethrow;
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 로그인한 사용자의 shorts 개수 가져오기
+// ─────────────────────────────────────────────────────────────────────────────
+final myShortsCountProvider = FutureProvider<int>((ref) async {
+  final auth = ref.read(authProvider);
+  final uid = auth.currentUser?.uid;
+  if (uid == null) return 0;
+
+  final firestore = ref.read(firestoreProvider);
+  final query = await firestore
+      .collection('shorts')
+      .where('ownerUid', isEqualTo: uid)
+      .get();
+
+  return query.docs.length;
+});

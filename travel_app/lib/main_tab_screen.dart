@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_app/view/Favorite/my_favorite_page.dart';
 import 'package:travel_app/view/My_page/my_page.dart';
 import 'package:travel_app/view/home_booking/home.dart';
-import 'package:travel_app/view/shorts/VideosPage.dart';
-import 'package:travel_app/view/shorts/shorts_reels_page.dart'; // 현재 있는 비디오 페이지
+import 'package:travel_app/view/shorts/shorts_reels_page.dart';
 
 class MainTabScreen extends StatefulWidget {
   const MainTabScreen({super.key});
@@ -14,13 +13,15 @@ class MainTabScreen extends StatefulWidget {
 
 class _MainTabScreenState extends State<MainTabScreen> {
   int currentIndex = 0;
-  
-  final List<Widget> pages = [
-    const Home(),           // 홈
-    const ShortsReelsPage(),     // 쇼츠
-    const MyFavoritePage(),    // 저장
-    const MyPage(),    // 마이페이지
+
+  final List<Widget> pages = const [
+    Home(),
+    ShortsReelsPage(),
+    MyFavoritePage(),
+    MyPage(),
   ];
+
+  final Color navyColor = const Color(0xFF0A1D37); // 네이비 컬러
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +30,59 @@ class _MainTabScreenState extends State<MainTabScreen> {
         index: currentIndex,
         children: pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentIndex,
-        onTap: (index) => setState(() => currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.video_library), label: '숏츠'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark_border_outlined), label: '저장'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            currentIndex: currentIndex,
+            onTap: (index) => setState(() => currentIndex = index),
+            selectedItemColor: navyColor,     // 네이비 포인트
+            unselectedItemColor: Colors.grey, // 기본 그레이
+            showUnselectedLabels: true,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 11,
+            ),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.flight_takeoff),
+                label: "홈",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.ondemand_video),
+                label: "숏츠",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bookmark_border),
+                label: "저장",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                label: "프로필",
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

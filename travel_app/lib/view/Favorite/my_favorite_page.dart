@@ -122,7 +122,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
     onPressed: () async {
       await saveProvider.toggleFlight(flight.id);
       setState(() {
-        flights.remove(flight.id); // ✅ UI 즉시 반영
+        flights.remove(flight.id); // UI 즉시 반영
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("항공편 북마크 해제됨")),
@@ -130,7 +130,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
     },
   ),
   onTap: () {
-    // ✅ 항공편 상세 페이지로 이동
+    // 항공편 상세 페이지로 이동
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -149,7 +149,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
           if (packages.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("📦 패키지",
+              child: Text("패키지",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             ...packages.map((id) => FutureBuilder<TravelPackage?>(
@@ -182,7 +182,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
     },
   ),
   onTap: () {
-    // ✅ 패키지 상세 페이지로 이동
+    // 패키지 상세 페이지로 이동
     Navigator.push(
       context,
       MaterialPageRoute(

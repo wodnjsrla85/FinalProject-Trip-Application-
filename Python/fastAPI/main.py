@@ -43,7 +43,7 @@ async def extract_passport_info(image: UploadFile = File(...)):
 
         config = '--psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<'
         line2 = pytesseract.image_to_string(preprocess_for_ocr(line2_img), config=config).strip().replace(" ", "")
-        print("🔍 MRZ Line2:", line2)
+        print("ㄴMRZ Line2:", line2)
 
         if len(line2) < 13:
             return JSONResponse({"error": "OCR 결과가 너무 짧습니다.", "raw_ocr": line2}, status_code=422)

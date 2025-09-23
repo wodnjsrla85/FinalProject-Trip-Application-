@@ -7,8 +7,6 @@ class BookingProvider {
   final bookingRef = FirebaseFirestore.instance.collection('booking');
   final packageRef = FirebaseFirestore.instance.collection('package');
 
-
-  // 항공권 / 패키지 예약
   // 항공권 / 패키지 예약
 Future<String> createBooking({
   required String aid,

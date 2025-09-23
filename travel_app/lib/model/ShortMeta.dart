@@ -107,6 +107,7 @@ class VideosRepository {
     'SCountry'    : country,
     'SId'         : docRef.id,
     'UEmail'      : userEmail ?? '',
+    'ownerUid'    : ownerUid,
     'SDate'       : FieldValue.serverTimestamp(),
     'SLike_count' : FieldValue.increment(0),
   }, SetOptions(merge: true));

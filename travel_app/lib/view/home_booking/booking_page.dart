@@ -22,7 +22,7 @@ class BookingPage extends ConsumerStatefulWidget {
 class _BookingPageState extends ConsumerState<BookingPage> {
   String? selectedClass;
   Set<String> selectedSeats = {};
-  Set<String> occupiedSeats = {}; // 🔥 예약된 좌석 목록
+  Set<String> occupiedSeats = {}; // 예약된 좌석 목록
 
   final bookingProvider = BookingProvider();
 
@@ -72,7 +72,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         title: Text("${flight.start} → ${flight.end}"),
         centerTitle: true,
         actions: [
-          // ✅ 저장 버튼 (항공편 북마크)
+          // 저장 버튼 (항공편 북마크)
           FutureBuilder<bool>(
             future: SaveProvider().isFlightSaved(flight.id),
             builder: (context, snapshot) {

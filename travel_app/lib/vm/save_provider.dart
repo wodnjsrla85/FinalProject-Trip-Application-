@@ -35,9 +35,9 @@ final packageSavedProvider =StateProvider.family<bool, String>((ref, packageId) 
       final updated = List<String>.from(save.packages);
 
       if (updated.contains(packageId)) {
-        updated.remove(packageId); // 🔥 제거
+        updated.remove(packageId); // 제거
       } else {
-        updated.add(packageId); // ✅ 추가
+        updated.add(packageId); // 추가
       }
 
       await docRef.update({"packages": updated});
@@ -72,18 +72,18 @@ final packageSavedProvider =StateProvider.family<bool, String>((ref, packageId) 
       final List flights = List<String>.from(data["flights"] ?? []);
 
       if (flights.contains(flightId)) {
-        // 🔥 이미 있으면 삭제
+        // 이미 있으면 삭제
         await docRef.update({
           "flights": FieldValue.arrayRemove([flightId])
         });
       } else {
-        // 🔥 없으면 추가
+        // 없으면 추가
         await docRef.update({
           "flights": FieldValue.arrayUnion([flightId])
         });
       }
     } else {
-      // 🔥 문서가 없으면 새로 생성
+      // 문서가 없으면 새로 생성
       await docRef.set({
         "flights": [flightId],
         "packages": [],

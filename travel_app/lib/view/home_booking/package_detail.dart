@@ -6,7 +6,7 @@ import 'package:travel_app/model/travel_package.dart';
 import 'package:travel_app/vm/booking_provider.dart';
 import 'package:travel_app/vm/save_provider.dart';
 
-// ✅ 저장 상태 Provider
+// 저장 상태 Provider
 final packageSavedProvider = StateProvider.family<bool, String>(
   (ref, String packageId) => false,
 );
@@ -341,7 +341,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                   onPressed: () async {
                     int passengerCount = 1;
 
-                    // ✅ 인원 선택 다이얼로그
+                    // 인원 선택 다이얼로그
                     passengerCount =
                         await showDialog<int>(
                           context: context,
@@ -405,7 +405,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                         ) ??
                         1;
 
-                    // ✅ 예약 바텀시트 호출
+                    // 예약 바텀시트 호출
                     final result = await showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,

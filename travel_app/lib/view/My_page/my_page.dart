@@ -9,6 +9,7 @@ import 'package:travel_app/view/My_page/package_booking_List.dart';
 import 'package:travel_app/view/My_page/privacy_police.dart';
 import 'package:travel_app/view/My_page/terms_of_service.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
+import 'package:travel_app/vm/shorts_provider.dart';
 import 'package:travel_app/vm/user_provider.dart';
 
 class MyPage extends ConsumerWidget {
@@ -18,6 +19,7 @@ class MyPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = FirebaseAuth.instance.currentUser;
     final userAsync = ref.watch(userStreamProvider);
+    final countShorts = ref.watch(myShortsCountProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -117,11 +119,25 @@ class MyPage extends ConsumerWidget {
                           height: 40,
                           color: Colors.grey[300],
                         ),
-                        _buildStatCard(
-                          icon: Icons.video_library,
-                          label: '비디오',
-                          value: '5',
-                          color: Colors.purple,
+                        countShorts.when(
+                          data: (count) => _buildStatCard(
+                            icon: Icons.video_library,
+                            label: '비디오',
+                            value: '$count개',
+                            color: Colors.purple,
+                          ),
+                          loading: () => _buildStatCard(
+                            icon: Icons.video_library,
+                            label: '비디오',
+                            value: '로딩 중',
+                            color: Colors.purple,
+                          ),
+                          error: (err, stack) => _buildStatCard(
+                            icon: Icons.video_library,
+                            label: '비디오',
+                            value: '오류',
+                            color: Colors.purple,
+                          ),
                         ),
                       ],
                     ),

@@ -9,7 +9,7 @@ import 'package:travel_app/view/My_page/tiket_page.dart';
 class FlightsBookingList extends ConsumerWidget {
   const FlightsBookingList({super.key});
 
-  // ✅ 예약 가져오기 (Firestore에서 전체 가져온 후 클라이언트에서 "취소됨" 제거)
+  // 예약 가져오기 (Firestore에서 전체 가져온 후 클라이언트에서 "취소됨" 제거)
   Future<List<Booking>> fetchBookings() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return [];
@@ -23,11 +23,11 @@ class FlightsBookingList extends ConsumerWidget {
     // 클라이언트에서 "취소됨" 상태 제거
     return snapshot.docs
         .map((doc) => Booking.fromMap(doc.data(), doc.id))
-        .where((b) => b.bState != "취소됨") // ✅ 여기서 필터링
+        .where((b) => b.bState != "취소됨") // 여기서 필터링
         .toList();
   }
 
-  // ✅ 항공편 데이터 가져오기
+  // 항공편 데이터 가져오기
   Future<Map<String, Airport?>> fetchAirplaneData(String aid) async {
     final startDoc = await FirebaseFirestore.instance
         .collection("airplane_start")
@@ -111,14 +111,14 @@ class FlightsBookingList extends ConsumerWidget {
                         "(${end?.date ?? start?.qDate} ${end?.time ?? start?.qTime})\n"
                         "항공사: ${start?.company ?? end?.company ?? '정보 없음'}, "
                         "기종: ${start?.fNum ?? end?.fNum ?? ''}\n"
-                        "상태: ${booking.bState}", // ✅ 예약 상태 표시
+                        "상태: ${booking.bState}", // 예약 상태 표시
                       ),
                       trailing: Text(
                         booking.what ?? "",
                         style: const TextStyle(fontSize: 12),
                       ),
 
-                      // ✅ 티켓 페이지 연결
+                      // 티켓 페이지 연결
                       onTap: () {
                         Navigator.push(
                           context,

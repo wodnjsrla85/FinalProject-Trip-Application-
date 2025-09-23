@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:travel_app/model/booking.dart';
-import 'package:travel_app/vm/booking_provider.dart'; // ✅ BookingProvider import
+import 'package:travel_app/vm/booking_provider.dart'; // BookingProvider import
 
 class TicketPage extends StatelessWidget {
   final Booking booking;
   const TicketPage({super.key, required this.booking});
 
-  // ✅ 예약 취소 함수
+  // 예약 취소 함수
   void _cancelBooking(BuildContext context) async {
     final provider = BookingProvider();
 
@@ -50,7 +50,7 @@ class TicketPage extends StatelessWidget {
       appBar: AppBar(title: const Text("탑승권")),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView( // ✅ 스크롤 가능
+        child: SingleChildScrollView( // 스크롤 가능
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,7 +63,7 @@ class TicketPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // ✅ QR 코드
+              // QR 코드
               Center(
                 child: QrImageView(
                   data: booking.bid,
@@ -73,7 +73,7 @@ class TicketPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // ✅ 바코드
+              // 바코드
               Center(
                 child: BarcodeWidget(
                   barcode: Barcode.code128(),
@@ -85,7 +85,7 @@ class TicketPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // ✅ 예약 상세 정보
+              // 예약 상세 정보
               const Text("예약 정보",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const Divider(),
@@ -119,7 +119,7 @@ class TicketPage extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              // ✅ 예약 취소 버튼
+              // 예약 취소 버튼
               Center(
                 child: ElevatedButton(
                   onPressed: () => _cancelBooking(context),
