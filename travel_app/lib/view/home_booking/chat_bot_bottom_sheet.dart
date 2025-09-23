@@ -18,7 +18,7 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
 
-  static const String _apiBaseUrl = 'https://ccee97d9a988.ngrok-free.app';
+  static const String _apiBaseUrl = 'https://01c4be475765.ngrok-free.app';
 
   @override
   void dispose() {
