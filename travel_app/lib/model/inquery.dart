@@ -1,12 +1,13 @@
 class Inquery {
-  final String id;      // Firestore 문서 ID
-  final String uEmail;  // 사용자 이메일
-  final String aEmail;  // 관리자/상대 이메일
-  final String date;    // 문의 작성 날짜
-  final String state;   // 상태 (예: 대기중, 처리중, 완료)
-  final String content; // 문의 내용
-  final String title;   // 문의 제목
-  final String to;   // 문의 제목
+  final String id;
+  final String uEmail;
+  final String aEmail;
+  final String date;
+  final String state;
+  final String content;
+  final String title;
+  final String to;
+  final String? reply; // ✅ 관리자 답변
 
   Inquery({
     required this.id,
@@ -17,9 +18,9 @@ class Inquery {
     required this.content,
     required this.title,
     required this.to,
+    this.reply,
   });
 
-  /// Firestore → Inquery 객체 변환
   factory Inquery.fromMap(Map<String, dynamic> map, String docId) {
     return Inquery(
       id: docId,
@@ -30,10 +31,10 @@ class Inquery {
       content: map['content'] ?? "",
       title: map['title'] ?? "",
       to: map['to'] ?? "",
+      reply: map['reply'], // ✅ 답변 불러오기
     );
   }
 
-  /// Inquery 객체 → Firestore 저장용 Map
   Map<String, dynamic> toMap() {
     return {
       "uEmail": uEmail,
@@ -42,7 +43,8 @@ class Inquery {
       "state": state,
       "content": content,
       "title": title,
-      "to" : to,
+      "to": to,
+      if (reply != null) "reply": reply,
     };
   }
 }

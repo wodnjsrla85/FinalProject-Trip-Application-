@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
@@ -10,6 +11,19 @@ final departureDateProvider = StateProvider<String?>((ref) => null);
 final returnDateProvider = StateProvider<String?>((ref) => null);
 final travelersProvider = StateProvider<int>((ref) => 1);
 final searchStateProvider = StateProvider<bool>((ref) => false);
+
+final userInfoProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return null;
+
+  final doc = await FirebaseFirestore.instance
+      .collection("users")
+      .doc(user.uid) // uid 기준으로 가져옴
+      .get();
+
+  if (!doc.exists) return null;
+  return doc.data();
+});
 
 final flightsProvider = StreamProvider<List<Airport>>((ref) {
   final start = ref.watch(selectedStartProvider);
