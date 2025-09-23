@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:travel_web/firebase_options.dart';
-import 'package:travel_web/view/package/dashboard.dart';
-import 'package:travel_web/view/package/travel_package_main.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:travel_web/ui/dashboard/main_dashboard_page.dart';
+import 'package:travel_web/ui/pages/login/login.dart';
+import 'firebase_options.dart';
 
-void main() async{
-	//로그인된 사람인지? 체크하는 부분
-  WidgetsFlutterBinding.ensureInitialized(); 
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -18,12 +20,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: Dashboard(),
+    return GetMaterialApp(
+      title: 'Airplane Dashboard',
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
+      home: LoginPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

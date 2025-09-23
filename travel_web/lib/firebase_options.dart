@@ -64,6 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '805098540855',
     projectId: 'travel-9a96d',
     storageBucket: 'travel-9a96d.firebasestorage.app',
+    iosClientId: '805098540855-2uja6jquh4q4jldj4po9r39mc06613k8.apps.googleusercontent.com',
     iosBundleId: 'com.example.travelWeb',
   );
+
 }
