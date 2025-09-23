@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,8 +19,8 @@ class _BookingSheetState extends State<BookingSheet> {
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
 
-  // ✅ 맥북 로컬 IP로 교체해야 함 (ifconfig로 확인)
-  final String serverUrl = "http://192.168.20.7:8000";
+  // ✅ FastAPI 서버 주소
+  final String serverUrl = "http://127.0.0.1:8000";
 
   @override
   void initState() {
@@ -44,7 +45,14 @@ class _BookingSheetState extends State<BookingSheet> {
         "POST",
         Uri.parse("$serverUrl/extract-passport-info/"),
       );
-      request.files.add(await http.MultipartFile.fromPath("image", imageFile.path));
+
+      // ✅ 원본 파일명과 ContentType 함께 전송
+      request.files.add(await http.MultipartFile.fromPath(
+        "image",
+        imageFile.path,
+        filename: imageFile.path.split("/").last,
+        contentType: MediaType("image", "jpeg"), // jpg/jpeg 둘 다 허용
+      ));
 
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
@@ -55,7 +63,7 @@ class _BookingSheetState extends State<BookingSheet> {
           passportControllers[index].text = data["passport_number"] ?? "";
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Passport number extracted")),
+          const SnackBar(content: Text("✅ 여권 번호 추출 완료")),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,6 +89,7 @@ class _BookingSheetState extends State<BookingSheet> {
     try {
       setState(() => _isLoading = true);
 
+      // 1) PaymentIntent 생성
       final response = await http.post(
         Uri.parse("$serverUrl/create-payment-intent/"),
         headers: {'Content-Type': 'application/json'},
@@ -97,6 +106,7 @@ class _BookingSheetState extends State<BookingSheet> {
         throw Exception("❌ PaymentIntent 생성 실패: ${data['error']}");
       }
 
+      // 2) Stripe 결제 Sheet 실행
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
@@ -107,14 +117,14 @@ class _BookingSheetState extends State<BookingSheet> {
       await Stripe.instance.presentPaymentSheet();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Payment Successful!")),
+        const SnackBar(content: Text("✅ 결제 완료")),
       );
 
       final passports = passportControllers.map((c) => c.text).toList();
       Navigator.pop(context, {"passports": passports, "payment": "card"});
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("⚠️ Payment failed: $e")),
+        SnackBar(content: Text("⚠️ 결제 실패: $e")),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -149,7 +159,7 @@ class _BookingSheetState extends State<BookingSheet> {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.camera_alt, color: Color(0xFF667EEA)),
+                      icon: const Icon(Icons.photo, color: Color(0xFF667EEA)),
                       onPressed: () => _pickPassportImage(i),
                     ),
                   ],
@@ -165,7 +175,7 @@ class _BookingSheetState extends State<BookingSheet> {
                     : () {
                         if (passportControllers.any((c) => c.text.isEmpty)) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("⚠️ 여권 번호를 입력하거나 추출하세요.")),
+                            const SnackBar(content: Text("⚠️ 여권 번호를 모두 입력 또는 추출하세요.")),
                           );
                           return;
                         }
