@@ -24,7 +24,7 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
 
-  final String serverUrl = "http://192.168.20.12:8000";
+  final String serverUrl = "http://127.0.0.1:8000";
 
   @override
   void initState() {
@@ -670,26 +670,15 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                           onTap: _isLoading || passportControllers.any((c) => c.text.isEmpty)
                               ? null
                               : () {
-                                  if (passportControllers.any((c) => c.text.isEmpty)) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: const Row(
-                                          children: [
-                                            Icon(Icons.warning, color: Colors.white),
-                                            SizedBox(width: 8),
-                                            Text("Please enter all passport numbers"),
-                                          ],
-                                        ),
-                                        backgroundColor: Colors.orange,
-                                        behavior: SnackBarBehavior.floating,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  _makePayment();
+  if (_isLoading) return;
+  if (passportControllers.any((c) => c.text.isEmpty)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Please enter all passport numbers")),
+    );
+    return;
+  }
+  _makePayment();
+
                                 },
                           child: Center(
                             child: _isLoading

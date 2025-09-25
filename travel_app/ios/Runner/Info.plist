@@ -17,15 +17,6 @@
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 
-	<!-- ✅ Stripe URL Scheme -->
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>stripe</string>
-		<string>stripesdk</string>
-		<string>https</string>
-		<string>http</string>
-	</array>
-
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -62,7 +53,25 @@
 				<string>travelapp</string> <!-- Flutter Stripe Callback 스킴 -->
 			</array>
 		</dict>
+
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.805098540855-v9c8if3qhqo3t25rrvbgmua7nrjp00i1</string>
+			</array>
+		</dict>
 	</array>
+
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>google</string>
+		<string>com.googleusercontent.apps.805098540855-v9c8if3qhqo3t25rrvbgmua7nrjp00i1</string>
+		<string>stripe</string>
+		<string>stripesdk</string>
+		<string>https</string>
+		<string>http</string>
+	</array>
+
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

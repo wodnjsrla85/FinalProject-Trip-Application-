@@ -210,7 +210,7 @@ class InqueryWritePage extends ConsumerWidget {
 
             // 내용 입력
             SizedBox(
-              height: 400,
+              height: 340,
               child: _buildInputCard(
                 child: TextField(
                   style: const TextStyle(color: Color(0xFF1E293B)),

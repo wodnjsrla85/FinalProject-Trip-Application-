@@ -66,8 +66,6 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-
               // 접힘/펼침 영역
               AnimatedCrossFade(
                 duration: const Duration(milliseconds: 300),
