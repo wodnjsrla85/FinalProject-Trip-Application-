@@ -18,14 +18,14 @@ class PackageWidget extends ConsumerWidget {
               padding: const EdgeInsets.all(40),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircleAvatar(
+                children: const [
+                  CircleAvatar(
                     radius: 40,
                     backgroundColor: Color(0xFFF1F5F9),
-                    child: Icon(Icons.card_travel, size: 40, color: Color(0xFF0F172A)),
+                    child: Icon(Icons.card_travel, size: 40, color: Color(0xFF003366)),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
+                  SizedBox(height: 16),
+                  Text(
                     "No packages available",
                     style: TextStyle(
                       fontSize: 18,
@@ -33,8 +33,8 @@ class PackageWidget extends ConsumerWidget {
                       color: Color(0xFF334155),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     "Travel packages will appear here",
                     style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
                   ),
@@ -55,7 +55,7 @@ class PackageWidget extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A), // ✅ 단색 통일
+                      color: const Color(0xFF003366), // 메인 블루
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.card_travel, color: Colors.white, size: 20),
@@ -73,7 +73,7 @@ class PackageWidget extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
+                      color: const Color(0xFF003366),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -132,7 +132,7 @@ class PackageWidget extends ConsumerWidget {
                                   child: Image.network(
                                     pkg.images.isNotEmpty
                                         ? pkg.images.first
-                                        : "https://via.placeholder.com/220x140/0F172A/FFFFFF?text=Travel+Package",
+                                        : "https://via.placeholder.com/220x140/003366/FFFFFF?text=Travel+Package",
                                     height: 140,
                                     width: double.infinity,
                                     fit: BoxFit.cover,
@@ -140,7 +140,7 @@ class PackageWidget extends ConsumerWidget {
                                       return Container(
                                         height: 140,
                                         width: double.infinity,
-                                        color: const Color(0xFF0F172A),
+                                        color: const Color(0xFF003366),
                                         child: const Icon(Icons.image, color: Colors.white, size: 40),
                                       );
                                     },
@@ -228,7 +228,7 @@ class PackageWidget extends ConsumerWidget {
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
-                                                color: Color(0xFF0F172A), // ✅ 단색 텍스트 강조
+                                                color: Color(0xFF003366), // 블루 강조
                                               ),
                                             ),
                                           ],
@@ -245,7 +245,7 @@ class PackageWidget extends ConsumerWidget {
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF0F172A),
+                                              backgroundColor: const Color(0xFFFFD700), // 옐로우 버튼
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
@@ -254,7 +254,7 @@ class PackageWidget extends ConsumerWidget {
                                             child: const Text(
                                               "Book",
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color: Color(0xFF003366), // 블루 텍스트
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600,
                                               ),
@@ -279,7 +279,7 @@ class PackageWidget extends ConsumerWidget {
         );
       },
       loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF0F172A), strokeWidth: 3),
+        child: CircularProgressIndicator(color: Color(0xFF003366), strokeWidth: 3),
       ),
       error: (err, stack) => Center(
         child: Column(
@@ -287,9 +287,11 @@ class PackageWidget extends ConsumerWidget {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Color(0xFFE11D48)),
             const SizedBox(height: 16),
-            Text("Failed to load packages\nError: $err",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+            Text(
+              "Failed to load packages\nError: $err",
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+            ),
           ],
         ),
       ),
@@ -308,7 +310,7 @@ class PackageWidget extends ConsumerWidget {
       case '대기중':
         return const Color(0xFFF59E0B); // 주황
       default:
-        return const Color(0xFF0F172A); // 기본: 남색
+        return const Color(0xFF003366); // 기본 블루
     }
   }
 

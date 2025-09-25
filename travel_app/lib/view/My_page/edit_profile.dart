@@ -6,7 +6,7 @@ import 'package:travel_app/vm/user_provider.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
   final AppUser userInfo;
-  
+
   const EditProfile({super.key, required this.userInfo});
 
   @override
@@ -21,7 +21,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   @override
   void initState() {
     super.initState();
-    // 초기값 설정
     _nameController = TextEditingController(text: widget.userInfo.name);
     _phoneController = TextEditingController(text: widget.userInfo.phone);
     _addressController = TextEditingController(text: widget.userInfo.address);
@@ -29,7 +28,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   @override
   void dispose() {
-    // 메모리 해제 (중요!)
     _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
@@ -39,35 +37,44 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC), // ✅ 밝은 배경
       appBar: AppBar(
-        title: const Text("정보 수정"),
         backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text(
+          "정보 수정",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
         actions: [
           TextButton(
             onPressed: _saveProfile,
-            child: const Text('저장'),
+            child: const Text(
+              '저장',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
-      backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
-            _buildTextField(
+            _buildInputField(
               controller: _nameController,
               label: "이름",
               icon: Icons.person,
             ),
             const SizedBox(height: 16),
-            _buildTextField(
+            _buildInputField(
               controller: _phoneController,
               label: "전화번호",
               icon: Icons.phone,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
-            _buildTextField(
+            _buildInputField(
               controller: _addressController,
               label: "주소",
               icon: Icons.home,
@@ -79,83 +86,71 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     );
   }
 
-  void _saveProfile() async {
-  try {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      throw Exception('로그인이 필요합니다');
-    }
+  Future<void> _saveProfile() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('로그인이 필요합니다');
+      }
 
-    // UserProvider의 updateUser 메서드 사용
-    await ref.read(userProvider).updateUser(
-      currentUser.uid, // uid 전달
-      {
-        'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'address': _addressController.text.trim(),
-      },
-    );
+      await ref.read(userProvider).updateUser(
+        currentUser.uid,
+        {
+          'name': _nameController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'address': _addressController.text.trim(),
+        },
+      );
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('저장되었습니다')),
-      );
-      Navigator.pop(context);
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('오류: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('저장되었습니다')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('오류: $e')),
+        );
+      }
     }
   }
-}
 
-  Widget _buildTextField({
+  Widget _buildInputField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    String? Function(String?)? validator,
     TextInputType? keyboardType,
     int maxLines = 1,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[700],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.blueAccent),
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.black54),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
           ),
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          validator: validator,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.grey[500]),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.blue),
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.all(16),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

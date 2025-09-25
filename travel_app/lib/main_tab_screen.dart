@@ -21,7 +21,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
     MyPage(),
   ];
 
-  final Color navyColor = const Color(0xFF0A1D37); // 네이비 컬러
+  final Color navyColor = const Color(0xFF003366); // 메인 네이비
+  final Color yellowColor = const Color(0xFFFFD700); // 옐로우 포인트
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +53,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
             type: BottomNavigationBarType.fixed,
             currentIndex: currentIndex,
             onTap: (index) => setState(() => currentIndex = index),
-            selectedItemColor: navyColor,     // 네이비 포인트
-            unselectedItemColor: Colors.grey, // 기본 그레이
+            selectedItemColor: yellowColor,   // ✅ 선택된 탭: 옐로우
+            unselectedItemColor: navyColor,   // ✅ 비선택 탭: 네이비
             showUnselectedLabels: true,
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w600,

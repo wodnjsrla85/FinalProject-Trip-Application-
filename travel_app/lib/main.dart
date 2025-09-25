@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       ),
       home: const AuthWrapper(),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,  
     );
   }
 }
@@ -49,7 +49,7 @@ class AuthWrapper extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return const MainTabScreen(); // ✅ 로그인 성공 → 메인
+          return const Login(); // ✅ 로그인 성공 → 메인
         } else {
           return const Login(); // ✅ 로그인 필요
         }

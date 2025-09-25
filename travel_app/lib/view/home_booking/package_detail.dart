@@ -29,7 +29,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    
+
     // Firestore에서 현재 저장 여부 확인 후 provider에 반영
     SaveProvider().isPackageSaved(widget.package.id).then((saved) {
       ref.read(packageSavedProvider(widget.package.id).notifier).state = saved;
@@ -47,7 +47,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
     final pkg = widget.package;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF5F7FA),
       extendBodyBehindAppBar: true,
       body: Column(
         children: [
@@ -81,57 +81,55 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
           // Background Image Carousel
           Container(
             height: 320,
-            child: pkg.images.isNotEmpty
-                ? cs.CarouselSlider(
-                    options: cs.CarouselOptions(
-                      height: 320,
-                      viewportFraction: 1.0,
-                      enableInfiniteScroll: pkg.images.length > 1,
-                      autoPlay: pkg.images.length > 1,
-                      onPageChanged: (index, reason) {
-                        setState(() => _currentImageIndex = index);
-                      },
-                    ),
-                    items: pkg.images.map((url) {
-                      return Stack(
-                        children: [
-                          Image.network(
-                            url,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: 320,
-                            errorBuilder: (c, e, s) => Container(
-                              color: const Color(0xFF1E293B),
-                              child: const Icon(Icons.image, size: 60, color: Colors.white54),
-                            ),
-                          ),
-                          // Dark Overlay
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.black.withOpacity(0.4),
-                                  Colors.black.withOpacity(0.7),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                  )
-                : Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1E293B), Color(0xFF334155)],
+            child:
+                pkg.images.isNotEmpty
+                    ? cs.CarouselSlider(
+                      options: cs.CarouselOptions(
+                        height: 320,
+                        viewportFraction: 1.0,
+                        enableInfiniteScroll: pkg.images.length > 1,
+                        autoPlay: pkg.images.length > 1,
+                        onPageChanged: (index, reason) {
+                          setState(() => _currentImageIndex = index);
+                        },
+                      ),
+                      items:
+                          pkg.images.map((url) {
+                            return Stack(
+                              children: [
+                                Image.network(
+                                  url,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: 320,
+                                  errorBuilder:
+                                      (c, e, s) => Container(
+                                        color: const Color(0xFF1E3A8A),
+                                        child: const Icon(
+                                          Icons.image,
+                                          size: 60,
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                    )
+                    : Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 60,
+                          color: Colors.white54,
+                        ),
                       ),
                     ),
-                    child: const Center(
-                      child: Icon(Icons.image_not_supported, size: 60, color: Colors.white54),
-                    ),
-                  ),
           ),
 
           // App Bar
@@ -147,27 +145,26 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                   const Spacer(),
                   if (pkg.images.length > 1)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         "${_currentImageIndex + 1}/${pkg.images.length}",
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF1E3A8A),
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   const Spacer(),
                   Row(
                     children: [
-                      _buildCircleButton(
-                        icon: Icons.share_outlined,
-                        onTap: () {},
-                      ),
                       const SizedBox(width: 12),
                       _buildCircleButton(
                         icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
@@ -176,14 +173,18 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                           try {
                             final newState = !isSaved;
                             await saveProvider.togglePackage(pkg.id);
-                            ref.read(packageSavedProvider(pkg.id).notifier).state = newState;
+                            ref
+                                .read(packageSavedProvider(pkg.id).notifier)
+                                .state = newState;
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Row(
                                   children: [
                                     Icon(
-                                      newState ? Icons.bookmark : Icons.bookmark_border,
+                                      newState
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border,
                                       color: Colors.white,
                                       size: 16,
                                     ),
@@ -191,9 +192,11 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                                     Text(newState ? "저장되었습니다!" : "저장 해제되었습니다."),
                                   ],
                                 ),
-                                backgroundColor: const Color(0xFF1E293B),
+                                backgroundColor: Colors.green,
                                 behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             );
                           } catch (e) {
@@ -202,7 +205,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                                 content: Text("실패: $e"),
                                 backgroundColor: Colors.red,
                                 behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             );
                           }
@@ -228,7 +233,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withOpacity(0.4),
+                    // const Color(0xFF1E3A8A).withOpacity(0.9),
                   ],
                 ),
               ),
@@ -247,11 +253,15 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: pkg.pState == "예약가능" 
-                              ? Colors.green.withOpacity(0.8)
-                              : Colors.orange.withOpacity(0.8),
+                          color:
+                              pkg.pState == "예약가능"
+                                  ? const Color(0xFFEAB308)
+                                  : Colors.orange,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -264,7 +274,11 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Icon(Icons.people_outline, color: Colors.white.withOpacity(0.8), size: 16),
+                      Icon(
+                        Icons.people_outline,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 16,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         "최대 ${pkg.pCount}명",
@@ -284,14 +298,17 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
     );
   }
 
-  Widget _buildCircleButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return Container(
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Color(0xFF1E3A8A).withOpacity(0.8),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -309,12 +326,11 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: const Color(0xFF1E3A8A).withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -325,10 +341,14 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF334155),
+              color: Colors.green,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.attach_money, color: Colors.white, size: 28),
+            child: const Icon(
+              Icons.attach_money,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -336,20 +356,17 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "₩${pkg.pPrice}만원",
+                  "₩${pkg.pPrice}",
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Color(0xFF1E3A8A),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "1인 기준 가격",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.6),
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -370,16 +387,22 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFF1E3A8A),
             ),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1E3A8A).withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               children: [
@@ -404,7 +427,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF334155),
+              color: const Color(0xFF3B82F6),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: Colors.white, size: 16),
@@ -416,10 +439,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.6),
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -427,7 +447,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: Color(0xFF1E3A8A),
                   ),
                 ),
               ],
@@ -442,7 +462,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       height: 1,
-      color: Colors.white.withOpacity(0.1),
+      color: Colors.grey[200],
     );
   }
 
@@ -450,12 +470,11 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
     return Container(
       margin: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: const Color(0xFF1E3A8A).withOpacity(0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -467,18 +486,18 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFF334155),
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(16),
             ),
             margin: const EdgeInsets.all(16),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
-                color: const Color(0xFF3B82F6),
+                color: const Color(0xFF1E3A8A),
                 borderRadius: BorderRadius.circular(12),
               ),
               labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withOpacity(0.6),
+              unselectedLabelColor: const Color(0xFF1E3A8A),
               labelStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -495,7 +514,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
               ],
             ),
           ),
-          
+
           // Tab Content
           Container(
             height: 300,
@@ -526,7 +545,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFF1E3A8A),
             ),
           ),
           const SizedBox(height: 12),
@@ -536,7 +555,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
                 content,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.grey[700],
                   height: 1.5,
                 ),
               ),
@@ -550,288 +569,299 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage>
   Widget _buildBottomActions(BuildContext context, TravelPackage pkg) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.1)),
-        ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            // 상담 버튼
-            Expanded(
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF3B82F6)),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {},
-                    child: const Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.phone_outlined, color: Color(0xFF3B82F6), size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            "상담",
-                            style: TextStyle(
-                              color: Color(0xFF3B82F6),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
             ),
-            
-            const SizedBox(width: 16),
-            
-            // 예약하기 버튼
-            Expanded(
-              flex: 2,
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF3B82F6).withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () async {
-                      int passengerCount = 1;
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF3B82F6).withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                int passengerCount = 1;
 
-                      // 인원 선택 다이얼로그
-                      passengerCount = await showDialog<int>(
-                        context: context,
-                        builder: (ctx) {
-                          int tempCount = 1;
-                          return Dialog(
-                            backgroundColor: const Color(0xFF1E293B),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: StatefulBuilder(
-                                builder: (c, setState) => Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Text(
-                                      "인원 선택",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                // 인원 선택 다이얼로그
+                passengerCount =
+                    await showDialog<int>(
+                      context: context,
+                      builder: (ctx) {
+                        int tempCount = 1;
+                        return Dialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: StatefulBuilder(
+                              builder:
+                                  (c, setState) => Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        "인원 선택",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1E3A8A),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      "여행 인원을 선택하세요",
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 14,
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        "여행 인원을 선택하세요",
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF334155),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              color: tempCount > 1 
-                                                  ? const Color(0xFF3B82F6) 
-                                                  : const Color(0xFF475569),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: IconButton(
-                                              icon: const Icon(Icons.remove, color: Colors.white),
-                                              onPressed: tempCount > 1
-                                                  ? () => setState(() => tempCount--)
-                                                  : null,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 24),
-                                          Text(
-                                            "$tempCount",
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 24),
-                                          Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              color: tempCount < int.parse(pkg.pCount)
-                                                  ? const Color(0xFF3B82F6)
-                                                  : const Color(0xFF475569),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: IconButton(
-                                              icon: const Icon(Icons.add, color: Colors.white),
-                                              onPressed: tempCount < int.parse(pkg.pCount)
-                                                  ? () => setState(() => tempCount++)
-                                                  : null,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    
-                                    const SizedBox(height: 24),
-                                    
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.white.withOpacity(0.3)),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: TextButton(
-                                              onPressed: () => Navigator.pop(ctx, passengerCount),
-                                              child: const Text(
-                                                "취소",
-                                                style: TextStyle(color: Colors.white),
-                                              ),
-                                            ),
+                                      const SizedBox(height: 24),
+
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF1F5F9),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Container(
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF3B82F6),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: TextButton(
-                                              onPressed: () => Navigator.pop(ctx, tempCount),
-                                              child: const Text(
-                                                "확인",
-                                                style: TextStyle(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 44,
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    tempCount > 1
+                                                        ? const Color(
+                                                          0xFF1E3A8A,
+                                                        )
+                                                        : Colors.grey[300],
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(
+                                                  Icons.remove,
                                                   color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                onPressed:
+                                                    tempCount > 1
+                                                        ? () => setState(
+                                                          () => tempCount--,
+                                                        )
+                                                        : null,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 24),
+                                            Text(
+                                              "$tempCount",
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF1E3A8A),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 24),
+                                            Container(
+                                              width: 44,
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    tempCount <
+                                                            int.parse(
+                                                              pkg.pCount,
+                                                            )
+                                                        ? const Color(
+                                                          0xFF1E3A8A,
+                                                        )
+                                                        : Colors.grey[300],
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                ),
+                                                onPressed:
+                                                    tempCount <
+                                                            int.parse(
+                                                              pkg.pCount,
+                                                            )
+                                                        ? () => setState(
+                                                          () => tempCount++,
+                                                        )
+                                                        : null,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 24),
+
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Colors.grey[300]!,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      ctx,
+                                                      passengerCount,
+                                                    ),
+                                                child: Text(
+                                                  "취소",
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ) ?? 1;
-
-                      // 예약 바텀시트 호출
-                      final result = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => BookingSheet(passengerCount: passengerCount, price: int.parse(pkg.pPrice),),
-                      );
-
-                      if (result != null) {
-                        try {
-                          final bookingProvider = BookingProvider();
-                          await bookingProvider.createBooking(
-                            aid: pkg.id,
-                            pricePerSeat: int.parse(pkg.pPrice),
-                            selectedSeats: const [],
-                            flightDate: pkg.pStart,
-                            passports: List<String>.from(result['passports']),
-                            payment: result['payment'],
-                            what: "패키지",
-                            passengerCount: passengerCount,
-                          );
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Row(
-                                children: [
-                                  Icon(Icons.check_circle, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text("예약이 완료되었습니다!"),
-                                ],
-                              ),
-                              backgroundColor: Colors.green,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: [
-                                  const Icon(Icons.error, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Text("예약 실패: $e"),
-                                ],
-                              ),
-                              backgroundColor: Colors.red,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: const Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.flight_takeoff, color: Colors.white, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            "예약하기",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Container(
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF1E3A8A),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      ctx,
+                                                      tempCount,
+                                                    ),
+                                                child: const Text(
+                                                  "확인",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                             ),
                           ),
-                        ],
+                        );
+                      },
+                    ) ??
+                    1;
+
+                // 예약 바텀시트 호출
+                final result = await showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder:
+                      (_) => BookingSheet(
+                        passengerCount: passengerCount,
+                        price: int.parse(pkg.pPrice),
+                      ),
+                );
+
+                if (result != null) {
+                  try {
+                    final bookingProvider = BookingProvider();
+                    await bookingProvider.createBooking(
+                      aid: pkg.id,
+                      pricePerSeat: int.parse(pkg.pPrice),
+                      selectedSeats: const [],
+                      flightDate: pkg.pStart,
+                      passports: List<String>.from(result['passports']),
+                      payment: result['payment'],
+                      what: "패키지",
+                      passengerCount: passengerCount,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text("예약이 완료되었습니다!"),
+                          ],
+                        ),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.error, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Text("예약 실패: $e"),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.flight_takeoff, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      "예약하기",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

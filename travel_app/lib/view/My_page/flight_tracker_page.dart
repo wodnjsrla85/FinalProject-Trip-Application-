@@ -15,7 +15,7 @@ class _FlightTrackerPageState extends State<FlightTrackerPage> {
   @override
   void initState() {
     super.initState();
-    
+
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
@@ -28,22 +28,39 @@ class _FlightTrackerPageState extends State<FlightTrackerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC), // ✅ 밝은 배경
       appBar: AppBar(
-        title: const Text('실시간 항공기 추적'),
         backgroundColor: Colors.white,
+        elevation: 1,
+        title: const Text(
+          '실시간 항공기 추적',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Color(0xFF1E293B)),
             onPressed: () => controller.reload(),
           ),
         ],
       ),
       body: Stack(
         children: [
+          // 웹뷰
           WebViewWidget(controller: controller),
+
+          // 로딩 인디케이터 (밝은 스타일)
           if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
+            Container(
+              color: Colors.white.withOpacity(0.6),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF3B82F6), // ✅ 블루 포인트
+                ),
+              ),
             ),
         ],
       ),

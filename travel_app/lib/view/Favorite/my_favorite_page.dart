@@ -82,120 +82,213 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Color(0xFFF8FAFC),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF003366))),
       );
     }
 
     if (flights.isEmpty && packages.isEmpty) {
       return const Scaffold(
-        body: Center(child: Text("저장된 항목이 없습니다.")),
+        backgroundColor: Color(0xFFF8FAFC),
+        body: Center(
+          child: Text(
+            "저장된 항목이 없습니다.",
+            style: TextStyle(color: Color(0xFF475569), fontSize: 16),
+          ),
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("내 북마크")),
-      body: ListView(
-        children: [
-          if (flights.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("✈ 항공편",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            ...flights.map((id) => FutureBuilder<Airport?>(
-                  future: _getFlightById(id),
-                  builder: (context, snap) {
-                    if (!snap.hasData) {
-                      return const ListTile(title: Text("불러오는 중..."));
-                    }
-                    final flight = snap.data;
-                    if (flight == null) {
-                      return ListTile(title: Text("항공편($id) 정보를 찾을 수 없습니다."));
-                    }
-                    return ListTile(
-  leading: const Icon(Icons.flight, color: Colors.blue),
-  title: Text("${flight.start} → ${flight.end}"),
-  subtitle: Text(
-      "${flight.company} ${flight.name} (${flight.date} ${flight.time})"),
-  trailing: IconButton(
-    icon: const Icon(Icons.bookmark_remove, color: Colors.red),
-    onPressed: () async {
-      await saveProvider.toggleFlight(flight.id);
-      setState(() {
-        flights.remove(flight.id); // UI 즉시 반영
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("항공편 북마크 해제됨")),
-      );
-    },
-  ),
-  onTap: () {
-    // 항공편 상세 페이지로 이동
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BookingPage(
-          flight: flight,
-          passengerCount: 1, // 기본값, 필요시 선택 기능 추가 가능
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (flights.isNotEmpty) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  "✈ 항공편",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF003366),
+                  ),
+                ),
+              ),
+              ...flights.map((id) => FutureBuilder<Airport?>(
+                    future: _getFlightById(id),
+                    builder: (context, snap) {
+                      if (!snap.hasData) {
+                        return _buildLoadingCard("항공편 불러오는 중...");
+                      }
+                      final flight = snap.data;
+                      if (flight == null) {
+                        return _buildErrorCard("항공편($id) 정보를 찾을 수 없습니다.");
+                      }
+                      return _buildFlightCard(flight);
+                    },
+                  )),
+            ],
+            if (packages.isNotEmpty) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 2.0),
+                      child: Icon(Icons.card_travel, color: Color(0xFF003366), size: 18,),
+                    ),
+                    Text(
+                      " 패키지",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF003366),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ...packages.map((id) => FutureBuilder<TravelPackage?>(
+                    future: _getPackageById(id),
+                    builder: (context, snap) {
+                      if (!snap.hasData) {
+                        return _buildLoadingCard("패키지 불러오는 중...");
+                      }
+                      final pkg = snap.data;
+                      if (pkg == null) {
+                        return _buildErrorCard("패키지($id) 정보를 찾을 수 없습니다.");
+                      }
+                      return _buildPackageCard(pkg);
+                    },
+                  )),
+            ],
+          ],
         ),
       ),
     );
-  },
-);
+  }
 
-                  },
-                )),
-          ],
-          if (packages.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("패키지",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            ...packages.map((id) => FutureBuilder<TravelPackage?>(
-                  future: _getPackageById(id),
-                  builder: (context, snap) {
-                    if (!snap.hasData) {
-                      return const ListTile(title: Text("불러오는 중..."));
-                    }
-                    final pkg = snap.data;
-                    if (pkg == null) {
-                      return ListTile(title: Text("패키지($id) 정보를 찾을 수 없습니다."));
-                    }
-                    return ListTile(
-  leading: pkg.images.isNotEmpty
-      ? Image.network(pkg.images.first,
-          width: 50, height: 50, fit: BoxFit.cover)
-      : const Icon(Icons.card_travel, color: Colors.purple),
-  title: Text(pkg.pName),
-  subtitle: Text("₩${pkg.pPrice} • ${pkg.pCount}명"),
-  trailing: IconButton(
-    icon: const Icon(Icons.bookmark_remove, color: Colors.red),
-    onPressed: () async {
-      await saveProvider.togglePackage(pkg.id);
-      setState(() {
-        packages.remove(pkg.id);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("패키지 북마크 해제됨")),
-      );
-    },
-  ),
-  onTap: () {
-    // 패키지 상세 페이지로 이동
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PackageDetailPage(package: pkg),
+  Widget _buildLoadingCard(String text) {
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        title: Text(text, style: const TextStyle(color: Color(0xFF475569))),
       ),
     );
-  },
-);
+  }
 
-                  },
-                )),
-          ],
-        ],
+  Widget _buildErrorCard(String text) {
+    return Card(
+      color: Colors.red.withOpacity(0.1),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        title: Text(text, style: const TextStyle(color: Color(0xFFE11D48))),
+      ),
+    );
+  }
+
+  Widget _buildFlightCard(Airport flight) {
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      shadowColor: Colors.black26,
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.flight, color: Colors.blue),
+        ),
+        title: Text(
+          "${flight.start} → ${flight.end}",
+          style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          "${flight.company} ${flight.name}\n${flight.date} ${flight.time}",
+          style: const TextStyle(color: Color(0xFF475569), fontSize: 13),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.bookmark, color: Color(0xFFFFD700)),
+          onPressed: () async {
+            await saveProvider.toggleFlight(flight.id);
+            setState(() {
+              flights.remove(flight.id);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("항공편 북마크 해제됨")),
+            );
+          },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BookingPage(flight: flight, passengerCount: 1),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPackageCard(TravelPackage pkg) {
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      shadowColor: Colors.black26,
+      child: ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: pkg.images.isNotEmpty
+              ? Image.network(pkg.images.first,
+                  width: 60, height: 60, fit: BoxFit.cover)
+              : Container(
+                  width: 60,
+                  height: 60,
+                  color: Colors.purple.withOpacity(0.1),
+                  child: const Icon(Icons.card_travel, color: Colors.purple),
+                ),
+        ),
+        title: Text(
+          pkg.pName,
+          style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          "₩${pkg.pPrice} • 최대 ${pkg.pCount}명",
+          style: const TextStyle(color: Color(0xFF475569), fontSize: 13),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.bookmark, color: Color(0xFFFFD700)),
+          onPressed: () async {
+            await saveProvider.togglePackage(pkg.id);
+            setState(() {
+              packages.remove(pkg.id);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("패키지 북마크 해제됨")),
+            );
+          },
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PackageDetailPage(package: pkg),
+            ),
+          );
+        },
       ),
     );
   }

@@ -66,92 +66,99 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         selectedClass != null ? seatLayouts[selectedClass] ?? <String>[] : <String>[];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF5F7FA),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-            onPressed: () => Navigator.pop(context),
-          ),
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  leading: Padding(
+    padding: const EdgeInsets.all(8),
+    child: GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E3A8A).withOpacity(0.8),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.3)),
         ),
-        title: Column(
-          children: [
-            Text(
-              "${flight.start} → ${flight.end}",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Text(
-              flight.company,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF64748B),
-              ),
-            ),
-            
-          ],
-        ),
-        centerTitle: true,
-        actions: [
-          SizedBox(height: 100,),
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-            ),
-            child: FutureBuilder<bool>(
-              future: SaveProvider().isFlightSaved(flight.id),
-              builder: (context, snapshot) {
-                final isSaved = snapshot.data ?? false;
-                return IconButton(
-                  icon: Icon(
-                    isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: isSaved ? Colors.amber : Colors.white,
-                    size: 20,
-                  ),
-                  onPressed: () async {
-                    try {
-                      await SaveProvider().toggleFlight(flight.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isSaved ? "저장 해제되었습니다." : "저장되었습니다!"),
-                          backgroundColor: const Color(0xFF1E293B),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
-                      setState(() {});
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("실패: $e"),
-                          backgroundColor: Colors.red,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+        child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
       ),
+    ),
+  ),
+  title: Column(
+    children: [
+      Text(
+        "${flight.start} → ${flight.end}",
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF1E293B),
+        ),
+      ),
+      Text(
+        flight.company,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Color(0xFF64748B),
+        ),
+      ),
+    ],
+  ),
+  centerTitle: true,
+  actions: [
+    FutureBuilder<bool>(
+      future: SaveProvider().isFlightSaved(flight.id),
+      builder: (context, snapshot) {
+        final isSaved = snapshot.data ?? false;
+        return Padding(
+          padding: const EdgeInsets.all(8),
+          child: GestureDetector(
+            onTap: () async {
+              try {
+                await SaveProvider().toggleFlight(flight.id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(isSaved ? "저장 해제되었습니다." : "저장되었습니다!"),
+                    backgroundColor: Colors.black87,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+                setState(() {});
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("실패: $e"),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E3A8A).withOpacity(0.8),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withOpacity(0.3)),
+              ),
+              child: Icon(
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                color: isSaved ? Colors.amber : Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  ],
+),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -161,7 +168,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
               margin: const EdgeInsets.only(top: 100, left: 20, right: 20, bottom: 24),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.white.withOpacity(0.1)),
                 boxShadow: [
@@ -180,10 +187,10 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF334155),
+                          color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.flight, color: Colors.white, size: 20),
+                        child: const Icon(Icons.flight, color: Colors.black, size: 20),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -195,14 +202,14 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
                             Text(
                               "Flight Details",
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.6),
+                                color: Color(0xFF1E293B),
                               ),
                             ),
                           ],
@@ -225,7 +232,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
                             Text(
@@ -286,7 +293,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
                             Text(
@@ -334,7 +341,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF1E293B),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -358,7 +365,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Color(0xFF1E293B),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -387,9 +394,9 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(color: Colors.black.withOpacity(0.1)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -406,9 +413,9 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     // Aircraft Layout
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(color: Colors.black.withOpacity(0.1)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.3),
@@ -473,7 +480,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF111827),
+                          color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.white.withOpacity(0.1)),
                           boxShadow: [
@@ -489,14 +496,14 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.receipt_long, color: Colors.white, size: 20),
+                                Icon(Icons.receipt_long, color: Colors.black, size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   "Booking Summary",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],
@@ -519,7 +526,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 Text(
@@ -552,7 +559,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           ? Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
+                color: Colors.white,
                 border: Border(
                   top: BorderSide(color: Colors.white.withOpacity(0.1)),
                 ),
@@ -700,7 +707,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF1E293B) : const Color(0xFF111827),
+        color: isSelected ? Colors.white.withOpacity(0.6) : Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected ? accentColor : Colors.white.withOpacity(0.1),
@@ -739,7 +746,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -747,7 +754,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                         "₩${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}",
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -780,7 +787,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -895,14 +902,14 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.black,
               fontSize: 14,
             ),
           ),
           Text(
             value,
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -931,3 +938,4 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     return _getPricePerSeat() * selectedSeats.length;
   }
 }
+

@@ -43,24 +43,26 @@ class Home extends ConsumerWidget {
     final pendingCount = ref.watch(pendingReplyCountProvider).value ?? 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1D29),
+      backgroundColor: const Color(0xFF003366), // 네이비 블루
       body: CustomScrollView(
         slivers: [
-          // 커스텀 앱바 - 다크 테마
+          // 커스텀 앱바
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: const Color(0xFF1A1D29),
+            automaticallyImplyLeading: false,
+            backgroundColor: const Color(0xFF003366),
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(color: Color(0xFF1A1D29)),
+                decoration: const BoxDecoration(color: Color(0xFF003366)),
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // SizedBox(height: 20,),
                         // 헤더 섹션
                         Row(
                           children: [
@@ -70,23 +72,18 @@ class Home extends ConsumerWidget {
                               height: 50,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.grey[300],
-                                image:
-                                    user?.photoURL != null
-                                        ? DecorationImage(
-                                          image: NetworkImage(user!.photoURL!),
-                                          fit: BoxFit.cover,
-                                        )
-                                        : null,
-                              ),
-                              child:
-                                  user?.photoURL == null
-                                      ? const Icon(
-                                        Icons.person,
-                                        color: Colors.grey,
-                                        size: 24,
+                                color: Colors.white.withOpacity(0.3),
+                                image: user?.photoURL != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(user!.photoURL!),
+                                        fit: BoxFit.cover,
                                       )
-                                      : null,
+                                    : null,
+                              ),
+                              child: user?.photoURL == null
+                                  ? const Icon(Icons.person,
+                                      color: Colors.white, size: 24)
+                                  : null,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -94,9 +91,9 @@ class Home extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Good Morning",
+                                    "Welcome Back",
                                     style: TextStyle(
-                                      color: Colors.grey[400],
+                                      color: Colors.white70,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
                                     ),
@@ -115,22 +112,20 @@ class Home extends ConsumerWidget {
                                         ),
                                       );
                                     },
-                                    loading:
-                                        () => const Text(
-                                          "Loading...",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                    error:
-                                        (_, __) => Text(
-                                          user?.email ?? "Traveler",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                          ),
-                                        ),
+                                    loading: () => const Text(
+                                      "Loading...",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    error: (_, __) => Text(
+                                      user?.email ?? "Traveler",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -151,7 +146,7 @@ class Home extends ConsumerWidget {
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.1),
+                                      color: Colors.white.withOpacity(0.2),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -197,7 +192,7 @@ class Home extends ConsumerWidget {
 
                         // 메인 타이틀
                         const Text(
-                          "Securely Book\nyour Flight Ticket",
+                          "Book your\nFlight Ticket",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 28,
@@ -231,29 +226,28 @@ class Home extends ConsumerWidget {
                   children: [
                     const SizedBox(height: 10),
 
-                    // 항공편 검색 카드 - 새 디자인
+                    // 항공편 검색 카드
                     Container(
                       decoration: _modernCardDecoration(),
                       child: const FlightSearch(),
                     ),
                     const SizedBox(height: 24),
 
-                    // 검색 결과 섹션
+                    // 검색 결과
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
-                      child:
-                          searchState
-                              ? Container(
-                                key: ValueKey(flights.hashCode),
-                                decoration: _modernCardDecoration(),
-                                child: const FlightResult(),
-                              )
-                              : const SizedBox.shrink(key: ValueKey('empty')),
+                      child: searchState
+                          ? Container(
+                              key: ValueKey(flights.hashCode),
+                              decoration: _modernCardDecoration(),
+                              child: const FlightResult(),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('empty')),
                     ),
 
                     if (searchState) const SizedBox(height: 24),
 
-                    // 여행 패키지 섹션
+                    // 여행 패키지
                     Container(
                       decoration: _modernCardDecoration(),
                       child: const PackageWidget(),
@@ -261,7 +255,7 @@ class Home extends ConsumerWidget {
 
                     const SizedBox(height: 24),
 
-                    // 추가 서비스 카드들 - 모던 스타일
+                    // 서비스 카드
                     _buildModernServiceCards(),
                     const SizedBox(height: 100),
                   ],
@@ -274,123 +268,32 @@ class Home extends ConsumerWidget {
 
       // 플로팅 액션 버튼 - 챗봇
       floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
-          ),
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF667EEA).withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: FloatingActionButton(
           onPressed: () => _showChatBot(context),
-          backgroundColor: Color(0xFF0F172A),
-          elevation: 0,
+          backgroundColor: const Color(0xFFFFD700), // 옐로우
+          elevation: 3,
           shape: const CircleBorder(),
-          child: const Icon(Icons.chat_bubble, color: Colors.white, size: 24),
+          child: const Icon(Icons.chat_bubble,
+              color: Color(0xFF003366), size: 24), // 블루 아이콘
         ),
       ),
     );
   }
 
-  // 모던 카드 데코레이션
+  // 카드 데코레이션
   BoxDecoration _modernCardDecoration() {
     return BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: const Color(0xFF003366).withOpacity(0.1)),
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.05),
           blurRadius: 20,
           offset: const Offset(0, 5),
-        ),
-      ],
-    );
-  }
-
-  // Upcoming flights 섹션
-  Widget _buildUpcomingFlights() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Upcoming flights",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1A202C),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                "See All",
-                style: TextStyle(
-                  color: Color(0xFF667EEA),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: _modernCardDecoration(),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF667EEA).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.flight,
-                  color: Color(0xFF667EEA),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Canada Airways",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A202C),
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "Toronto → Vancouver",
-                      style: TextStyle(fontSize: 14, color: Color(0xFF718096)),
-                    ),
-                  ],
-                ),
-              ),
-              const Text(
-                "\$550",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A202C),
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -405,7 +308,7 @@ class Home extends ConsumerWidget {
     );
   }
 
-  // 모던 서비스 카드들
+  // 서비스 카드들
   Widget _buildModernServiceCards() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,7 +331,7 @@ class Home extends ConsumerWidget {
                 "Check-in",
                 "Online check-in available",
                 Icons.flight_takeoff,
-                const Color(0xFF667EEA),
+                const Color(0xFF003366), // 블루
               ),
             ),
             const SizedBox(width: 16),
@@ -450,7 +353,7 @@ class Home extends ConsumerWidget {
                 "Baggage",
                 "Check allowance",
                 Icons.luggage,
-                const Color(0xFFED8936),
+                const Color(0xFFFFD700), // 옐로우
               ),
             ),
             const SizedBox(width: 16),
@@ -469,17 +372,13 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildModernServiceCard(
-    String title,
-    String description,
-    IconData icon,
-    Color color,
-  ) {
+      String title, String description, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.1), width: 1),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),

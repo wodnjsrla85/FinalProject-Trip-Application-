@@ -82,13 +82,13 @@ class Join extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Color(0xFF404040), width: 1),
+          border: Border.all(color: Color(0xFFB0C4DE), width: 1),
         ),
         child: TextField(
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
-          cursorColor: Color(0xFF404040), // 커서 색상 지정
+          cursorColor: Color(0xFF003366), // 블루 커서
           style: TextStyle(fontSize: 16, color: Colors.black87),
           decoration: InputDecoration(
             hintText: hint,
@@ -102,8 +102,8 @@ class Join extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: Color(0xFF1C1C28),
-      resizeToAvoidBottomInset: true, // 키보드 올라올 때 화면 자동 조정
+      backgroundColor: Color(0xFF003366), // 네이비 블루
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 24),
@@ -115,7 +115,7 @@ class Join extends ConsumerWidget {
                 "Create Account",
                 style: TextStyle(
                   fontSize: 32,
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                   letterSpacing: 1.5,
                 ),
@@ -123,7 +123,7 @@ class Join extends ConsumerWidget {
               SizedBox(height: 8),
               Text(
                 "Sky Travel 회원가입",
-                style: TextStyle(fontSize: 16, color: Color(0xFF9CA3AF)),
+                style: TextStyle(fontSize: 16, color: Color(0xFFB0C4DE)),
               ),
 
               SizedBox(height: 48),
@@ -134,7 +134,7 @@ class Join extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Color(0xFF404040), width: 1),
+                  border: Border.all(color: Color(0xFF003366), width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -174,22 +174,18 @@ class Join extends ConsumerWidget {
                       icon: Icons.location_on_outlined,
                     ),
 
-                    //// 성별 드롭다운
+                    // 성별 드롭다운
                     Container(
                       margin: EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Color(0xFF404040), width: 1),
+                        border: Border.all(color: Color(0xFFB0C4DE), width: 1),
                       ),
                       child: DropdownButtonFormField<String>(
                         value: selectedSex,
-                        dropdownColor: Colors.white, // 드롭다운 리스트 배경색
-                        style: TextStyle(
-                          // 드롭다운 아이템 텍스트 스타일
-                          color: Colors.black87,
-                          fontSize: 16,
-                        ),
+                        dropdownColor: Colors.white,
+                        style: TextStyle(color: Colors.black87, fontSize: 16),
                         onChanged: (val) => selectedSex = val,
                         decoration: InputDecoration(
                           prefixIcon: Icon(
@@ -202,19 +198,18 @@ class Join extends ConsumerWidget {
                             vertical: 16,
                           ),
                         ),
-                        items:
-                            sexList.map((s) {
-                              return DropdownMenuItem(
-                                value: s,
-                                child: Text(
-                                  s,
-                                  style: TextStyle(
-                                    color: Colors.black87, // 텍스트 색상
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                        items: sexList.map((s) {
+                          return DropdownMenuItem(
+                            value: s,
+                            child: Text(
+                              s,
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
 
@@ -222,7 +217,7 @@ class Join extends ConsumerWidget {
                     Container(
                       height: 52,
                       decoration: BoxDecoration(
-                        color: Color(0xFF1C1C28),
+                        color: Color(0xFFFFD700), // 옐로우 버튼
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ElevatedButton(
@@ -247,11 +242,12 @@ class Join extends ConsumerWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
+                          elevation: 0,
                         ),
                         child: Text(
                           "회원가입",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Color(0xFF003366), // 블루 텍스트
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -270,22 +266,28 @@ class Join extends ConsumerWidget {
                 children: [
                   Text(
                     "이미 계정이 있나요? ",
-                    style: TextStyle(color: Color(0xFF9CA3AF)),
+                    style: TextStyle(color: Color(0xFFB0C4DE)),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("로그인", style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      "로그인",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
 
-              SizedBox(height: 40), // Spacer 대신 안전한 고정 여백
+              SizedBox(height: 40),
 
               Padding(
                 padding: EdgeInsets.only(bottom: 34),
                 child: Text(
                   "© 2025 Sky Travel. 모든 권리 보유.",
-                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                  style: TextStyle(color: Color(0xFFB0C4DE), fontSize: 12),
                 ),
               ),
             ],

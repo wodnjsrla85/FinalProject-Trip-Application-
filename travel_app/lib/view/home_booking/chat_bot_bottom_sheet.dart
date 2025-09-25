@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +17,7 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
 
-  static const String _apiBaseUrl = 'https://01c4be475765.ngrok-free.app';
+  static const String _apiBaseUrl = 'https://22153bbc18ad.ngrok-free.app';
 
   @override
   void dispose() {
@@ -154,7 +153,7 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
+                    color: const Color(0xFF003366), // 메인 블루
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(Icons.support_agent, color: Colors.white, size: 24),
@@ -240,10 +239,10 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
                   const SizedBox(width: 12),
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: const Color(0xFF0F172A),
+                    backgroundColor: const Color(0xFFFFD700), // 옐로우 버튼
                     child: IconButton(
                       onPressed: () => _sendMessage(_messageController.text),
-                      icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.send_rounded, color: Color(0xFF003366), size: 20), // 블루 아이콘
                     ),
                   ),
                 ],
@@ -262,7 +261,7 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
         children: const [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Color(0xFF0F172A),
+            backgroundColor: Color(0xFF003366),
             child: Icon(Icons.chat_bubble_outline, size: 36, color: Colors.white),
           ),
           SizedBox(height: 20),
@@ -336,7 +335,7 @@ class _ChatBotBottomSheetState extends State<ChatBotBottomSheet> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
-          color: message.isUser ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+          color: message.isUser ? const Color(0xFF003366) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
           border: message.isUser ? null : Border.all(color: Colors.grey[200]!),
         ),

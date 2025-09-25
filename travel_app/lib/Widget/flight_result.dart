@@ -38,14 +38,14 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
+                        color: Color(0xFF003366), // 네이비 블루
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
+                        color: Color(0xFF003366),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -61,7 +61,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                     AnimatedRotation(
                       turns: isExpanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 300),
-                      child: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF0F172A)),
+                      child: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF003366)),
                     ),
                   ],
                 ),
@@ -117,7 +117,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: const Color(0xFF0F172A),
+                backgroundColor: const Color(0xFF003366),
                 child: const Icon(Icons.flight, color: Colors.white, size: 18),
               ),
               const SizedBox(width: 12),
@@ -130,7 +130,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
+                        color: Color(0xFF003366), // 네이비 블루
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -167,14 +167,14 @@ class _FlightResultState extends ConsumerState<FlightResult> {
           // 날짜 + 가격
           Row(
             children: [
-              const Icon(Icons.calendar_today, size: 16, color: Color(0xFF0F172A)),
+              const Icon(Icons.calendar_today, size: 16, color: Color(0xFF003366)),
               const SizedBox(width: 8),
               Text(
                 flight.date,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0F172A),
+                  color: Color(0xFF003366),
                 ),
               ),
               const Spacer(),
@@ -184,7 +184,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: Color(0xFF003366),
                   ),
                 ),
             ],
@@ -208,7 +208,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F172A),
+                backgroundColor: const Color(0xFFFFD700), // 옐로우 버튼
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -216,7 +216,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
               child: const Text(
                 "Book Now",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF003366), // 블루 텍스트
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -245,7 +245,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF334155),
+                color: Color(0xFF003366),
               ),
             ),
             SizedBox(height: 8),
@@ -266,7 +266,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Color(0xFF0F172A), strokeWidth: 2.5),
+            CircularProgressIndicator(color: Color(0xFF003366), strokeWidth: 2.5),
             SizedBox(height: 16),
             Text(
               "Searching for flights...",
@@ -292,7 +292,7 @@ class _FlightResultState extends ConsumerState<FlightResult> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
+                color: Color(0xFF003366),
               ),
             ),
             const SizedBox(height: 8),

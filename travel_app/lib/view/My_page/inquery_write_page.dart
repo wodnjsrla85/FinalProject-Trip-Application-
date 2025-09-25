@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_app/vm/inquery_provider.dart';
 import 'package:travel_app/model/airport.dart';
-import 'package:travel_app/model/travel_package.dart';
 import 'package:travel_app/vm/pacakge_provider.dart';
 
-final inqueryRefIdProvider = StateProvider<String>((ref) => ""); // 선택된 문서 ID 저장
+final inqueryRefIdProvider = StateProvider<String>((ref) => "");
 
 class InqueryWritePage extends ConsumerWidget {
   const InqueryWritePage({super.key});
@@ -23,8 +22,8 @@ class InqueryWritePage extends ConsumerWidget {
 
     final title = ref.read(inqueryTitleProvider);
     final content = ref.read(inqueryContentProvider);
-    final to = ref.read(inqueryToProvider); // 문의 대상
-    final refId = ref.read(inqueryRefIdProvider); // 선택한 패키지/항공편 ID
+    final to = ref.read(inqueryToProvider);
+    final refId = ref.read(inqueryRefIdProvider);
 
     if (title.isEmpty || content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,7 +50,7 @@ class InqueryWritePage extends ConsumerWidget {
         "title": title,
         "content": content,
         "to": to,
-        "refId": refId, // 패키지/항공편 ID 저장
+        "refId": refId,
       });
 
       if (context.mounted) {
@@ -76,141 +75,160 @@ class InqueryWritePage extends ConsumerWidget {
     final refId = ref.watch(inqueryRefIdProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("문의하기")),
+      backgroundColor: const Color(0xFFF8FAFC), // ✅ 밝은 배경
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF1E293B)), // ✅ 다크네이비
+        title: const Text(
+          "문의하기",
+          style: TextStyle(
+            color: Color(0xFF1E293B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             // 문의 대상 선택
-            DropdownButtonFormField<String>(
-              value: selectedTo,
-              items: const [
-                DropdownMenuItem(value: "어플", child: Text("어플")),
-                DropdownMenuItem(value: "항공사", child: Text("항공사")),
-                DropdownMenuItem(value: "여행사", child: Text("여행사")),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(inqueryToProvider.notifier).state = value;
-                  ref.read(inqueryRefIdProvider.notifier).state = ""; // 선택 초기화
-                }
-              },
-              decoration: const InputDecoration(
-                labelText: "문의 대상",
-                border: OutlineInputBorder(),
+            _buildInputCard(
+              child: DropdownButtonFormField<String>(
+                value: selectedTo,
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Color(0xFF1E293B)),
+                items: const [
+                  DropdownMenuItem(value: "어플", child: Text("어플")),
+                  DropdownMenuItem(value: "항공사", child: Text("항공사")),
+                  DropdownMenuItem(value: "여행사", child: Text("여행사")),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    ref.read(inqueryToProvider.notifier).state = value;
+                    ref.read(inqueryRefIdProvider.notifier).state = "";
+                  }
+                },
+                decoration: _inputDecoration("문의 대상"),
               ),
             ),
             const SizedBox(height: 16),
 
-            // 여행사 → 패키지 드롭다운
+            // 여행사 → 패키지 선택
             if (selectedTo == "여행사")
-              ref.watch(packageProvider).when(
-                data: (packages) => DropdownButtonFormField<String>(
-                  value: refId.isNotEmpty ? refId : null,
-                  items: packages
-                      .map((pkg) => DropdownMenuItem(
-                            value: pkg.id,
-                            child: Text("${pkg.pName} (${pkg.pStart}~${pkg.pEnd})"),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      ref.read(inqueryRefIdProvider.notifier).state = value;
-                    }
-                  },
-                  decoration: const InputDecoration(
-                    labelText: "패키지 선택",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Text("패키지 불러오기 실패: $e"),
+              _buildInputCard(
+                child: ref.watch(packageProvider).when(
+                      data: (packages) => DropdownButtonFormField<String>(
+                        value: refId.isNotEmpty ? refId : null,
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Color(0xFF1E293B)),
+                        items: packages
+                            .map((pkg) => DropdownMenuItem(
+                                  value: pkg.id,
+                                  child: Text("${pkg.pName} (${pkg.pStart}~${pkg.pEnd})"),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            ref.read(inqueryRefIdProvider.notifier).state = value;
+                          }
+                        },
+                        decoration: _inputDecoration("패키지 선택"),
+                      ),
+                      loading: () => const Center(
+                        child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                      ),
+                      error: (e, _) => Text("패키지 불러오기 실패: $e",
+                          style: const TextStyle(color: Colors.redAccent)),
+                    ),
               ),
 
-  // 항공사 → 항공편 드롭다운 (FutureBuilder, start + end 합치기)
-if (selectedTo == "항공사")
-  FutureBuilder<List<QuerySnapshot>>(
-    future: Future.wait([
-      FirebaseFirestore.instance.collection("airplane_start").get(),
-      FirebaseFirestore.instance.collection("airplane_end").get(),
-    ]),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const CircularProgressIndicator();
-      }
-      if (snapshot.hasError) {
-        return Text("항공편 불러오기 실패: ${snapshot.error}");
-      }
-      if (!snapshot.hasData) {
-        return const Text("항공편 데이터 없음");
-      }
+            // 항공사 → 항공편 선택
+            if (selectedTo == "항공사")
+              _buildInputCard(
+                child: FutureBuilder<List<QuerySnapshot>>(
+                  future: Future.wait([
+                    FirebaseFirestore.instance.collection("airplane_start").get(),
+                    FirebaseFirestore.instance.collection("airplane_end").get(),
+                  ]),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator(color: Color(0xFF2563EB));
+                    }
+                    if (snapshot.hasError) {
+                      return Text("항공편 불러오기 실패: ${snapshot.error}",
+                          style: const TextStyle(color: Colors.redAccent));
+                    }
+                    if (!snapshot.hasData) {
+                      return const Text("항공편 데이터 없음",
+                          style: TextStyle(color: Color(0xFF64748B)));
+                    }
 
-      // 두 컬렉션 결과 합치기
-      final allDocs = [
-        ...snapshot.data![0].docs,
-        ...snapshot.data![1].docs,
-      ];
+                    final allDocs = [
+                      ...snapshot.data![0].docs,
+                      ...snapshot.data![1].docs,
+                    ];
 
-      final flights = allDocs
-          .map((doc) =>
-              Airport.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-          .toList();
+                    final flights = allDocs
+                        .map((doc) =>
+                            Airport.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+                        .toList();
 
-      return DropdownButtonFormField<String>(
-        value: refId.isNotEmpty ? refId : null,
-        items: flights
-            .map((f) => DropdownMenuItem(
-                  value: f.id,
-                  child: Text("${f.company} ${f.name} (${f.start}→${f.end})"),
-                ))
-            .toList(),
-        onChanged: (value) {
-          if (value != null) {
-            ref.read(inqueryRefIdProvider.notifier).state = value;
-          }
-        },
-        decoration: const InputDecoration(
-          labelText: "항공편 선택",
-          border: OutlineInputBorder(),
-        ),
-      );
-    },
-  ),
-
+                    return DropdownButtonFormField<String>(
+                      value: refId.isNotEmpty ? refId : null,
+                      dropdownColor: Colors.white,
+                      style: const TextStyle(color: Color(0xFF1E293B)),
+                      items: flights
+                          .map((f) => DropdownMenuItem(
+                                value: f.id,
+                                child: Text("${f.company} ${f.name} (${f.start}→${f.end})"),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          ref.read(inqueryRefIdProvider.notifier).state = value;
+                        }
+                      },
+                      decoration: _inputDecoration("항공편 선택"),
+                    );
+                  },
+                ),
+              ),
 
             const SizedBox(height: 16),
 
             // 제목 입력
-            TextField(
-              onChanged: (v) =>
-                  ref.read(inqueryTitleProvider.notifier).state = v,
-              decoration: const InputDecoration(
-                labelText: "제목",
-                border: OutlineInputBorder(),
+            _buildInputCard(
+              child: TextField(
+                style: const TextStyle(color: Color(0xFF1E293B)),
+                onChanged: (v) => ref.read(inqueryTitleProvider.notifier).state = v,
+                decoration: _inputDecoration("제목"),
               ),
             ),
             const SizedBox(height: 16),
 
             // 내용 입력
-            Expanded(
-              child: TextField(
-                onChanged: (v) =>
-                    ref.read(inqueryContentProvider.notifier).state = v,
-                maxLines: null,
-                expands: true,
-                decoration: const InputDecoration(
-                  labelText: "내용",
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
+            SizedBox(
+              height: 400,
+              child: _buildInputCard(
+                child: TextField(
+                  style: const TextStyle(color: Color(0xFF1E293B)),
+                  onChanged: (v) => ref.read(inqueryContentProvider.notifier).state = v,
+                  maxLines: null,
+                  expands: true,
+                  decoration: _inputDecoration("내용").copyWith(
+                    alignLabelWithHint: true,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 30),
 
             // 등록 버튼
             SizedBox(
               width: double.infinity,
+              height: 52,
               child: ElevatedButton.icon(
                 icon: isLoading
                     ? const SizedBox(
@@ -221,15 +239,49 @@ if (selectedTo == "항공사")
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.send),
-                label: Text(isLoading ? "저장중..." : "등록하기"),
-                onPressed:
-                    isLoading ? null : () => _submitInquery(context, ref),
+                    : const Icon(Icons.send, color: Colors.white),
+                label: Text(
+                  isLoading ? "저장중..." : "등록하기",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFD700), // ✅ 블루 포인트
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 2,
+                ),
+                onPressed: isLoading ? null : () => _submitInquery(context, ref),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // 공통 인풋 카드
+  Widget _buildInputCard({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white, // ✅ 카드 화이트
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withOpacity(0.08)),
+      ),
+      child: child,
+    );
+  }
+
+  // 공통 InputDecoration
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Color(0xFF64748B)), // ✅ 보조 텍스트
+      border: InputBorder.none,
     );
   }
 }
