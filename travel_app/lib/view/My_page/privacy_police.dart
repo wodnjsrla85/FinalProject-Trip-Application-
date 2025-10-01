@@ -9,6 +9,7 @@ class PrivacyPolicyPage extends StatelessWidget {
       {
         "title": "1. 수집하는 개인정보 항목",
         "icon": Icons.person_outline,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 회원가입 시: 이메일, 비밀번호, 이름, 휴대전화번호\n"
             "- 예약 시: 여권번호, 생년월일, 탑승자 정보, 결제 정보\n"
             "- 자동 수집: 접속 IP, 기기정보, 이용기록",
@@ -16,6 +17,7 @@ class PrivacyPolicyPage extends StatelessWidget {
       {
         "title": "2. 개인정보의 이용 목적",
         "icon": Icons.task_alt,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 항공권 및 여행 패키지 예약/결제 처리\n"
             "- 예약 확인 및 고객 상담 서비스\n"
             "- 맞춤형 여행 상품 추천(동의 시)\n"
@@ -24,6 +26,7 @@ class PrivacyPolicyPage extends StatelessWidget {
       {
         "title": "3. 개인정보 보유 및 이용 기간",
         "icon": Icons.access_time,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 회원 탈퇴 시 지체 없이 파기\n"
             "- 단, 전자상거래 기록: 5년\n"
             "- 소비자 불만/분쟁 처리: 3년",
@@ -31,12 +34,14 @@ class PrivacyPolicyPage extends StatelessWidget {
       {
         "title": "4. 개인정보 제3자 제공",
         "icon": Icons.share_outlined,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 항공사/여행사: 예약 및 발권\n"
             "- 결제 대행사: 결제 승인 및 환불",
       },
       {
         "title": "5. 개인정보 보호 조치",
         "icon": Icons.lock_outline,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 암호화 저장\n"
             "- 접근권한 최소화\n"
             "- 정기적 보안 점검",
@@ -44,12 +49,14 @@ class PrivacyPolicyPage extends StatelessWidget {
       {
         "title": "6. 이용자의 권리",
         "icon": Icons.verified_user_outlined,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 본인 정보 열람·정정·삭제\n"
             "- 마케팅 수신 거부 가능",
       },
       {
         "title": "7. 개인정보 보호 책임자",
         "icon": Icons.support_agent,
+        "color": Colors.white,   // ✅ 색상 필드 추가
         "content": "- 이름: [담당자명]\n"
             "- 이메일: [이메일]\n"
             "- 전화번호: [전화번호]",
@@ -88,6 +95,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           const SizedBox(height: 20),
           ...sections.map((section) {
             return Card(
+              color: Colors.white,
               elevation: 2,
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(

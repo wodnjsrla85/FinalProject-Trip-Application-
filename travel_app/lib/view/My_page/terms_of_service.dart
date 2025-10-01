@@ -100,6 +100,7 @@ class TermsOfServicePage extends StatelessWidget {
           const SizedBox(height: 20),
           ...sections.map((section) {
             return Card(
+              color: Colors.white,
               elevation: 2,
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(

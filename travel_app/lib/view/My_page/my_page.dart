@@ -8,6 +8,7 @@ import 'package:travel_app/view/My_page/inquery_list_page.dart';
 import 'package:travel_app/view/My_page/package_booking_List.dart';
 import 'package:travel_app/view/My_page/privacy_police.dart';
 import 'package:travel_app/view/My_page/terms_of_service.dart';
+import 'package:travel_app/view/login/join/login.dart';
 import 'package:travel_app/view/shorts/VideosPage.dart';
 import 'package:travel_app/vm/inquery_provider.dart';
 import 'package:travel_app/vm/shorts_provider.dart';
@@ -332,6 +333,7 @@ class MyPage extends ConsumerWidget {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (_) => AlertDialog(
+                        backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -352,6 +354,7 @@ class MyPage extends ConsumerWidget {
                     );
                     if (confirm == true) {
                       await FirebaseAuth.instance.signOut();
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Login(),));
                     }
                   },
                   icon: const Icon(Icons.logout, color: navy),

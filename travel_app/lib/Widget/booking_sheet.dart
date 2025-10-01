@@ -9,13 +9,18 @@ import 'dart:io';
 class BookingSheet extends StatefulWidget {
   final int passengerCount;
   final int price;
-  const BookingSheet({super.key, required this.passengerCount, required this.price});
+  const BookingSheet({
+    super.key,
+    required this.passengerCount,
+    required this.price,
+  });
 
   @override
   State<BookingSheet> createState() => _BookingSheetState();
 }
 
-class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMixin {
+class _BookingSheetState extends State<BookingSheet>
+    with TickerProviderStateMixin {
   late List<TextEditingController> passportControllers;
   late List<bool> isExtractingList;
   bool _isLoading = false;
@@ -24,7 +29,7 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
 
-  final String serverUrl = "http://127.0.0.1:8000";
+  final String serverUrl = "http://192.168.20.12:8000";
 
   @override
   void initState() {
@@ -35,19 +40,15 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
       (_) => TextEditingController(),
     );
     isExtractingList = List.generate(widget.passengerCount, (_) => false);
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _slideAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     _animationController.forward();
   }
 
@@ -62,7 +63,7 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
 
   Future<void> _uploadPassportAndExtract(File imageFile, int index) async {
     setState(() => isExtractingList[index] = true);
-    
+
     try {
       // 이미지 크기 체크 및 압축
       final int fileSize = await imageFile.length();
@@ -78,7 +79,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
             ),
             backgroundColor: Colors.orange,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
         return;
@@ -90,12 +93,12 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
       );
 
       final multipartFile = await http.MultipartFile.fromPath(
-        "image", 
+        "image",
         imageFile.path,
         filename: imageFile.path.split("/").last,
         contentType: MediaType('image', 'jpeg'),
       );
-      
+
       request.files.add(multipartFile);
       request.headers.addAll({
         'Accept': 'application/json',
@@ -121,7 +124,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
             ),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       } else {
@@ -136,7 +141,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
             ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -152,7 +159,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
           ),
           backgroundColor: Colors.orange,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     } finally {
@@ -164,14 +173,12 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
     try {
       final XFile? picked = await _picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1920,
-        maxHeight: 1080,
-        imageQuality: 85,
+        imageQuality: 100,
       );
-      
+
       if (picked != null) {
         File imageFile = File(picked.path);
-        
+
         if (await imageFile.exists()) {
           await _uploadPassportAndExtract(imageFile, index);
         } else {
@@ -186,7 +193,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
               ),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -203,7 +212,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
           ),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -216,10 +227,7 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
       final response = await http.post(
         Uri.parse("$serverUrl/create-payment-intent/"),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "amount": totalPrice,
-          "currency": "usd",
-        }),
+        body: json.encode({"amount": totalPrice, "currency": "usd"}),
       );
 
       final data = json.decode(response.body);
@@ -249,7 +257,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
           ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
 
@@ -267,7 +277,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
           ),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     } finally {
@@ -292,10 +304,10 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
           ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              24, 
-              20, 
-              24, 
-              MediaQuery.of(context).viewInsets.bottom + 24
+              24,
+              20,
+              24,
+              MediaQuery.of(context).viewInsets.bottom + 24,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -357,7 +369,7 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 32),
 
                   // Passenger Forms
@@ -368,7 +380,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.2),
@@ -388,7 +402,10 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                                 height: 36,
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                                    colors: [
+                                      Color(0xFF3B82F6),
+                                      Color(0xFF1D4ED8),
+                                    ],
                                   ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -414,9 +431,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 20),
-                          
+
                           // Input Section
                           Container(
                             decoration: BoxDecoration(
@@ -454,66 +471,77 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                                     ),
                                   ),
                                 ),
-                                
+
                                 Container(
                                   margin: const EdgeInsets.only(right: 4),
-                                  child: isExtractingList[i]
-                                      ? Container(
-                                          width: 56,
-                                          height: 56,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF475569),
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                          child: const Center(
-                                            child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  child:
+                                      isExtractingList[i]
+                                          ? Container(
+                                            width: 56,
+                                            height: 56,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF475569),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            child: const Center(
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(Color(0xFF3B82F6)),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          : Container(
+                                            width: 56,
+                                            height: 56,
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [
                                                   Color(0xFF3B82F6),
+                                                  Color(0xFF1D4ED8),
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(
+                                                    0xFF3B82F6,
+                                                  ).withOpacity(0.3),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Material(
+                                              color: Colors.transparent,
+                                              child: InkWell(
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                onTap:
+                                                    () => _pickPassportImage(i),
+                                                child: const Icon(
+                                                  Icons.camera_alt_outlined,
+                                                  color: Colors.white,
+                                                  size: 24,
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        )
-                                      : Container(
-                                          width: 56,
-                                          height: 56,
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                                            ),
-                                            borderRadius: BorderRadius.circular(14),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: const Color(0xFF3B82F6).withOpacity(0.3),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.circular(14),
-                                              onTap: () => _pickPassportImage(i),
-                                              child: const Icon(
-                                                Icons.camera_alt_outlined,
-                                                color: Colors.white,
-                                                size: 24,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
                                 ),
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Helper Text
                           Row(
                             children: [
@@ -545,12 +573,12 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.white.withOpacity(0.1)),
                       boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -579,9 +607,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -615,9 +643,9 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         Row(
                           children: [
                             Icon(
@@ -648,81 +676,105 @@ class _BookingSheetState extends State<BookingSheet> with TickerProviderStateMix
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: passportControllers.any((c) => c.text.isEmpty)
-                              ? [const Color(0xFF475569), const Color(0xFF64748B)]
-                              : [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)],
+                          colors:
+                              passportControllers.any((c) => c.text.isEmpty)
+                                  ? [
+                                    const Color(0xFF475569),
+                                    const Color(0xFF64748B),
+                                  ]
+                                  : [
+                                    const Color(0xFF3B82F6),
+                                    const Color(0xFF1D4ED8),
+                                  ],
                         ),
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: passportControllers.any((c) => c.text.isEmpty)
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: const Color(0xFF3B82F6).withOpacity(0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
+                        boxShadow:
+                            passportControllers.any((c) => c.text.isEmpty)
+                                ? null
+                                : [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF3B82F6,
+                                    ).withOpacity(0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16),
-                          onTap: _isLoading || passportControllers.any((c) => c.text.isEmpty)
-                              ? null
-                              : () {
-  if (_isLoading) return;
-  if (passportControllers.any((c) => c.text.isEmpty)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Please enter all passport numbers")),
-    );
-    return;
-  }
-  _makePayment();
-
-                                },
+                          onTap:
+                              _isLoading ||
+                                      passportControllers.any(
+                                        (c) => c.text.isEmpty,
+                                      )
+                                  ? null
+                                  : () {
+                                    if (_isLoading) return;
+                                    if (passportControllers.any(
+                                      (c) => c.text.isEmpty,
+                                    )) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Please enter all passport numbers",
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    _makePayment();
+                                  },
                           child: Center(
-                            child: _isLoading
-                                ? const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2.5,
+                            child:
+                                _isLoading
+                                    ? const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(width: 16),
-                                      Text(
-                                        "Processing...",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
+                                        SizedBox(width: 16),
+                                        Text(
+                                          "Processing...",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.credit_card,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        "Pay \$${totalPrice} with Card",
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                                      ],
+                                    )
+                                    : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.credit_card,
                                           color: Colors.white,
+                                          size: 24,
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          "Pay \$${totalPrice} with Card",
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                           ),
                         ),
                       ),

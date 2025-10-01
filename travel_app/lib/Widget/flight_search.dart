@@ -175,6 +175,7 @@ class _FlightSearchState extends ConsumerState<FlightSearch> {
   }) {
     return DropdownButtonFormField<String>(
       value: value,
+      dropdownColor: Colors.white,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Color(0xFF94A3B8)),

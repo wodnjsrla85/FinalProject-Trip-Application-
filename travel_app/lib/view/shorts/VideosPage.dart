@@ -18,7 +18,7 @@ class VideosPage extends ConsumerWidget {
     final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // ✅ 밝은 배경
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
@@ -57,7 +57,7 @@ class VideosPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFFFFD700),
+        backgroundColor: const Color(0xFFFFD700),
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () => _uploadVideo(context, ref),
       ),
@@ -107,6 +107,7 @@ class VideoListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
@@ -115,8 +116,12 @@ class VideoListItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  VideoPlayerScreen(url: video.sVideo, docId: video.id),
+              builder: (_) => VideoPlayerScreen(
+                url: video.sVideo,
+                docId: video.id,
+                title: video.sTitle,
+                country: video.sCountry,
+              ),
             ),
           );
         },
@@ -271,7 +276,16 @@ class _VideoUploadScreenState extends State<VideoUploadScreen> {
 class VideoPlayerScreen extends ConsumerStatefulWidget {
   final String url;
   final String docId;
-  const VideoPlayerScreen({super.key, required this.url, required this.docId});
+  final String title;
+  final String country;
+
+  const VideoPlayerScreen({
+    super.key,
+    required this.url,
+    required this.docId,
+    required this.title,
+    required this.country,
+  });
 
   @override
   ConsumerState<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
@@ -320,7 +334,7 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFFFFD700),
+        backgroundColor: const Color(0xFFFFD700),
         onPressed: () {
           setState(() {
             controller.value.isPlaying ? controller.pause() : controller.play();
@@ -337,7 +351,10 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
   Future<void> _editVideo() async {
     final result = await showDialog<({String title, String country})>(
       context: context,
-      builder: (context) => const EditVideoDialog(),
+      builder: (context) => EditVideoDialog(
+        initialTitle: widget.title,
+        initialCountry: widget.country,
+      ),
     );
 
     if (result == null) return;
@@ -409,15 +426,36 @@ class _VideoPlayerScreenState extends ConsumerState<VideoPlayerScreen> {
 // 6. 수정 다이얼로그
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 class EditVideoDialog extends StatefulWidget {
-  const EditVideoDialog({super.key});
+  final String initialTitle;
+  final String initialCountry;
+
+  const EditVideoDialog({
+    super.key,
+    required this.initialTitle,
+    required this.initialCountry,
+  });
 
   @override
   State<EditVideoDialog> createState() => _EditVideoDialogState();
 }
 
 class _EditVideoDialogState extends State<EditVideoDialog> {
-  final titleController = TextEditingController();
-  final countryController = TextEditingController();
+  late TextEditingController titleController;
+  late TextEditingController countryController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.initialTitle);
+    countryController = TextEditingController(text: widget.initialCountry);
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    countryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
